@@ -5,6 +5,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const workspaceRoutes = require("./routes/workspaceRoutes");
 const taskRoutes = require("./routes/taskAllocatorRoutes.js");
+const notificationRoutes = require("./routes/notificationRoutes");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const path = require("path");
@@ -24,18 +25,24 @@ const password = process.env.DB_PASSWORD;
 
 Connection(username, password);
 
+// API routes first
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/workspace", workspaceRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/notification", notificationRoutes);
 
-// deployment-->
+// Error Handling middlewares
+app.use(notFound);
+app.use(errorHandler);
+
+// Deployment routes last
 const __dirname1 = path.resolve();
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname1, "/frontend/build")));
-
+  
   app.get("*", (req, res) =>
     res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"))
   );
@@ -44,11 +51,6 @@ if (process.env.NODE_ENV === "production") {
     res.send("API is running..");
   });
 }
-//--->
-
-// Error Handling middlewares
-app.use(notFound);
-app.use(errorHandler);
 
 const server = app.listen(
   PORT,

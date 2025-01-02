@@ -17,6 +17,10 @@ const userSchema = mongoose.Schema(
       default: false,
     },
     workspaces: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Workspace' }],
+    fcmToken: {
+      type: String,
+      required: false,
+    }
   },
   { timestamps: true }
 );

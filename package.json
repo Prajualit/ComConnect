@@ -1,8 +1,8 @@
 {
   "name": "comconnect",
   "homepage": "https://github.com/spec-nith/ComConnect",
-"predeploy": "npm run build",
-"deploy": "gh-pages -d build",
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d build",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -26,7 +26,11 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
     "mongoose": "^8.4.1",
     "socket.io": "^4.7.5"
   },

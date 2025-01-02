@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const Message = require("../models/messageModel");
 const User = require("../models/userModel");
 const Chat = require("../models/chatModel");
+const NotificationService = require('../services/notificationService');
 
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId
@@ -25,8 +26,8 @@ const sendMessage = asyncHandler(async (req, res) => {
   const { content, chatId } = req.body;
 
   if (!content || !chatId) {
-    console.log("Invalid data passed into request", req.body);
-    return res.status(400).json({ error: "Content or chatId missing" });
+    console.log("Invalid data passed into request");
+    return res.sendStatus(400);
   }
 
   var newMessage = {
@@ -41,15 +42,33 @@ const sendMessage = asyncHandler(async (req, res) => {
     message = await message.populate("chat");
     message = await User.populate(message, {
       path: "chat.users",
-      select: "name pic email",
+      select: "name pic email fcmToken",
     });
 
-    await Chat.findByIdAndUpdate(chatId, { latestMessage: message });
+    await Chat.findByIdAndUpdate(req.body.chatId, {
+      latestMessage: message,
+    });
+
+    // Send notifications to all users in the chat except sender
+    message.chat.users.forEach(async (user) => {
+      if (user._id.toString() !== req.user._id.toString()) {
+        await NotificationService.queueNotification({
+          userId: user._id.toString(),
+          title: message.chat.isGroupChat ? message.chat.chatName : message.sender.name,
+          body: content,
+          data: {
+            chatId: chatId,
+            messageId: message._id.toString(),
+            type: 'new_message'
+          }
+        });
+      }
+    });
 
     res.json(message);
   } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(400).json({ error: error.message });
+    res.status(400);
+    throw new Error(error.message);
   }
 });
 

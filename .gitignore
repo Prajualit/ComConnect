@@ -9,6 +9,9 @@ node_modules
 # Production
 /frontend/build
 
+./comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json
+/comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json
+
 # Misc
 .DS_Store
 .env
