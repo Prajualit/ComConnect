@@ -136,90 +136,7 @@ function SideDrawer() {
     }
   };
 
-  const testNotification = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      
-      const response = await axios.post('/api/notification/test', {}, config);
-      console.log('Test notification response:', response.data);
-    } catch (error) {
-      console.error('Test notification error:', error);
-    }
-  };
-
-  const testBrowserNotification = () => {
-    try {
-      if (!('Notification' in window)) {
-        alert('This browser does not support notifications');
-        return;
-      }
-
-      if (Notification.permission === 'granted') {
-        const notification = new Notification('Direct Browser Test', {
-          body: 'This is a direct browser notification test',
-          icon: '/icon.png',
-          requireInteraction: true
-        });
-
-        notification.onclick = () => {
-          window.focus();
-          notification.close();
-        };
-      } else {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            const notification = new Notification('Permission Granted', {
-              body: 'Notifications are now enabled!',
-              icon: '/icon.png',
-              requireInteraction: true
-            });
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error testing browser notification:', error);
-    }
-  };
-
-  const testDirectNotification = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      
-      const response = await axios.post(
-        '/api/notification/test-direct', 
-        {}, 
-        config
-      );
-      
-      console.log('✅ Direct notification response:', response.data);
-    } catch (error) {
-      console.error('❌ Direct notification error:', error);
-    }
-  };
-
-  const testFCMDirectly = async () => {
-    try {
-      console.log('🚀 Testing FCM directly...');
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
-      
-      const response = await axios.post('/api/notification/test-fcm', {}, config);
-      console.log('✅ FCM test response:', response.data);
-    } catch (error) {
-      console.error('❌ FCM test error:', error);
-    }
-  };
+ 
 
   return (
     <>
@@ -246,41 +163,9 @@ function SideDrawer() {
         </Text>
 
         <div>
-          <Button 
-            onClick={testNotification} 
-            size="sm" 
-            colorScheme="purple"
-            mr={2}
-          >
-            Test Notification
-          </Button>
+          
 
-          <Button 
-            onClick={testBrowserNotification} 
-            size="sm" 
-            colorScheme="blue"
-            mr={2}
-          >
-            Test Browser Notification
-          </Button>
-
-          <Button 
-            onClick={testDirectNotification} 
-            size="sm" 
-            colorScheme="purple"
-            mr={2}
-          >
-            Test Direct FCM
-          </Button>
-
-          <Button 
-            onClick={testFCMDirectly} 
-            size="sm" 
-            colorScheme="orange"
-            mr={2}
-          >
-            Test FCM Direct
-          </Button>
+       
 
           <Menu>
             <MenuButton p={1}>
