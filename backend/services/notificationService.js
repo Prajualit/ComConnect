@@ -151,53 +151,104 @@ class NotificationService {
     const { userId, title, body, data } = notification;
     const fcmToken = await this.getFCMToken(userId);
 
-    if (!fcmToken) return;
+    console.log('📤 Sending notification to user:', userId);
+    console.log('📱 FCM Token:', fcmToken);
+
+    if (!fcmToken) {
+      console.log('❌ No FCM token found for user:', userId);
+      return;
+    }
 
     const message = {
+      token: fcmToken,
       notification: {
         title,
         body,
       },
-      data,
-      token: fcmToken,
+      data: {
+        ...data,
+        // Ensure all values are strings
+        chatId: (data?.chatId || '').toString(),
+        messageId: (data?.messageId || '').toString(),
+        type: (data?.type || 'message').toString(),
+      },
+      webpush: {
+        headers: {
+          Urgency: 'high'
+        },
+        notification: {
+          title,
+          body,
+          icon: '/icon.png',
+          badge: '/badge.png',
+          vibrate: [200, 100, 200],
+          requireInteraction: true,
+          actions: [
+            {
+              action: 'open',
+              title: 'Open Chat'
+            }
+          ]
+        },
+        fcm_options: {
+          link: data?.chatId ? `/chat/${data.chatId}` : '/'
+        }
+      },
+      android: {
+        priority: 'high'
+      },
     };
 
     try {
-      await admin.messaging().send(message);
+      console.log('📤 Sending FCM message:', message);
+      const response = await admin.messaging().send(message);
+      console.log('✅ FCM notification sent successfully:', response);
+      return response;
     } catch (error) {
-      console.error('Error sending FCM notification:', error);
+      console.error('❌ Error sending FCM notification:', error);
+      if (error.code === 'messaging/invalid-registration-token' || 
+          error.code === 'messaging/registration-token-not-registered') {
+        console.log('🔄 Removing invalid token for user:', userId);
+        await redis.del(`user:${userId}:fcmToken`);
+      }
+      throw error;
     }
   }
 
   async queueNotification(notification) {
     try {
       console.log('📤 Queuing notification:', notification);
-  
-      // Check if producer is connected by using the internal state or a try-catch approach
+
+      // Verify Kafka connection first
       try {
-        // Attempt a small operation to check the connection
         await producer.send({
           topic: 'test-topic',
           messages: [{ value: 'test message' }],
         });
       } catch (error) {
-        // If error occurs, producer is not connected; try connecting
-        console.log('❌ Kafka producer not connected. Attempting to reconnect...');
+        console.log('❌ Kafka producer not connected. Reconnecting...');
         await producer.connect();
       }
-  
-      // Now that the producer is ensured to be connected, send the notification
+
+      // Send notification to Kafka
       await producer.send({
         topic: 'chat-notifications',
         messages: [
-          { value: JSON.stringify(notification) },
+          {
+            key: notification.userId,
+            value: JSON.stringify(notification),
+            headers: {
+              timestamp: Date.now().toString()
+            }
+          },
         ],
       });
-  
+
       console.log('✅ Notification queued successfully');
     } catch (error) {
       console.error('❌ Failed to queue notification:', error);
-      throw error;
+      // If Kafka fails, try sending directly
+      await this.sendNotification(notification);
     }
   }
   

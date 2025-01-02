@@ -1,7 +1,7 @@
 import { Button } from "@chakra-ui/button";
 import { useDisclosure } from "@chakra-ui/hooks";
 import { Input } from "@chakra-ui/input";
-import { Box, Text } from "@chakra-ui/layout";
+import { Box, Circle, Text } from "@chakra-ui/layout";
 import {
   Menu,
   MenuButton,
@@ -136,6 +136,91 @@ function SideDrawer() {
     }
   };
 
+  const testNotification = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      
+      const response = await axios.post('/api/notification/test', {}, config);
+      console.log('Test notification response:', response.data);
+    } catch (error) {
+      console.error('Test notification error:', error);
+    }
+  };
+
+  const testBrowserNotification = () => {
+    try {
+      if (!('Notification' in window)) {
+        alert('This browser does not support notifications');
+        return;
+      }
+
+      if (Notification.permission === 'granted') {
+        const notification = new Notification('Direct Browser Test', {
+          body: 'This is a direct browser notification test',
+          icon: '/icon.png',
+          requireInteraction: true
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      } else {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            const notification = new Notification('Permission Granted', {
+              body: 'Notifications are now enabled!',
+              icon: '/icon.png',
+              requireInteraction: true
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error testing browser notification:', error);
+    }
+  };
+
+  const testDirectNotification = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      
+      const response = await axios.post(
+        '/api/notification/test-direct', 
+        {}, 
+        config
+      );
+      
+      console.log('✅ Direct notification response:', response.data);
+    } catch (error) {
+      console.error('❌ Direct notification error:', error);
+    }
+  };
+
+  const testFCMDirectly = async () => {
+    try {
+      console.log('🚀 Testing FCM directly...');
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      };
+      
+      const response = await axios.post('/api/notification/test-fcm', {}, config);
+      console.log('✅ FCM test response:', response.data);
+    } catch (error) {
+      console.error('❌ FCM test error:', error);
+    }
+  };
+
   return (
     <>
       <Box
@@ -145,7 +230,7 @@ function SideDrawer() {
         bg="white"
         w="100%"
         p="5px 10px 5px 10px"
-    
+        borderWidth="5px"
       >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
@@ -155,40 +240,66 @@ function SideDrawer() {
             </Text>
           </Button>
         </Tooltip>
-        <Text fontSize="3xl" fontFamily="Work sans" textAlign="center" flex="1" className="animated-text">
+
+        <Text fontSize="3xl" fontFamily="Work sans" textAlign="center" flex="1">
           COMCONNECT
         </Text>
+
         <div>
+          <Button 
+            onClick={testNotification} 
+            size="sm" 
+            colorScheme="purple"
+            mr={2}
+          >
+            Test Notification
+          </Button>
+
+          <Button 
+            onClick={testBrowserNotification} 
+            size="sm" 
+            colorScheme="blue"
+            mr={2}
+          >
+            Test Browser Notification
+          </Button>
+
+          <Button 
+            onClick={testDirectNotification} 
+            size="sm" 
+            colorScheme="purple"
+            mr={2}
+          >
+            Test Direct FCM
+          </Button>
+
+          <Button 
+            onClick={testFCMDirectly} 
+            size="sm" 
+            colorScheme="orange"
+            mr={2}
+          >
+            Test FCM Direct
+          </Button>
+
           <Menu>
             <MenuButton p={1}>
-              {/* removed notification badge */}
-              <BellIcon fontSize="2xl" m={1} />
-            </MenuButton>
-            <MenuList pl={2}>
-              {!notification.length && "No New Messages"}
-              {notification.map((notif) => (
-                <MenuItem
-                  key={notif._id}
-                  onClick={() => {
-                    setSelectedChat(notif.chat);
-                    setNotification(notification.filter((n) => n !== notif));
-                  }}
-                >
-                  {notif.chat.isGroupChat
-                    ? `New Message in ${notif.chat.chatName}`
-                    : `New Message from ${getSender(user, notif.chat.users)}`}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          <Menu>
-            <MenuButton as={Button} bg="white" rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size="sm"
-                cursor="pointer"
-                name={user.name}
-                src={user.pic}
-              />
+              <Box position="relative" display="inline-block">
+                <BellIcon fontSize="2xl" m={1} />
+                {notification.length > 0 && (
+                  <Circle
+                    size="20px"
+                    bg="red.500"
+                    color="white"
+                    position="absolute"
+                    top="-8px"
+                    right="-8px"
+                    fontSize="12px"
+                  >
+                    {notification.length}
+                  </Circle>
+                )}
+              </Box>
             </MenuButton>
             <MenuList>
               <ProfileModal user={user}>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Homepage from "./Pages/Homepage";
 import Chatpage from "./Pages/Chatpage";
@@ -10,6 +10,21 @@ import TaskAllocatorPage from "./components/task_allocator/TaskAllocatorPage";
 import MyTasks from "./components/task_allocator/MyTasks";
 
 const App = () => {
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      try {
+        if ('Notification' in window) {
+          const permission = await Notification.requestPermission();
+          console.log('Notification permission:', permission);
+        }
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
+
   return (
     <Router>
       <ChakraProvider>
