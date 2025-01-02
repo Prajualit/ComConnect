@@ -54,12 +54,13 @@ testRedisConnection();
 // Initialize Kafka with proper configuration and error handling
 const kafka = new Kafka({
   clientId: 'notification-service',
-  brokers: process.env.KAFKA_BROKERS,
+  brokers: process.env.KAFKA_BROKER ? process.env.KAFKA_BROKER.split(',') : ['localhost:9092'],
   retry: {
     initialRetryTime: 100,
-    retries: 8
-  }
+    retries: 8,
+  },
 });
+
 
 const producer = kafka.producer({
   allowAutoTopicCreation: true,
@@ -171,18 +172,35 @@ class NotificationService {
   async queueNotification(notification) {
     try {
       console.log('📤 Queuing notification:', notification);
+  
+      // Check if producer is connected by using the internal state or a try-catch approach
+      try {
+        // Attempt a small operation to check the connection
+        await producer.send({
+          topic: 'test-topic',
+          messages: [{ value: 'test message' }],
+        });
+      } catch (error) {
+        // If error occurs, producer is not connected; try connecting
+        console.log('❌ Kafka producer not connected. Attempting to reconnect...');
+        await producer.connect();
+      }
+  
+      // Now that the producer is ensured to be connected, send the notification
       await producer.send({
         topic: 'chat-notifications',
         messages: [
           { value: JSON.stringify(notification) },
         ],
       });
+  
       console.log('✅ Notification queued successfully');
     } catch (error) {
       console.error('❌ Failed to queue notification:', error);
       throw error;
     }
   }
+  
 
   async testKafkaConnection() {
     try {
@@ -205,4 +223,4 @@ class NotificationService {
   }
 }
 
-module.exports = new NotificationService(); 
+module.exports = new NotificationService();
