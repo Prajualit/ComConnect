@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-    "proxy": "http://localhost:5001",
+    "proxy": "http://backend:5000",
   "dependencies": {
     "@chakra-ui/avatar": "^2.3.0",
     "@chakra-ui/button": "^2.1.0",
@@ -31,7 +31,10 @@
     "react-scrollable-feed": "^2.0.2",
     "socket.io-client": "^4.7.5",
     "update": "^0.7.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "firebase": "^10.8.0",
+    "@firebase/app": "^0.9.27",
+    "@firebase/auth": "^1.6.0"
   },
   "resolutions": {
     "react": "^18.3.1",

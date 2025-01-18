@@ -1,12 +1,6 @@
-const admin = require('firebase-admin');
+const admin = require('../config/firebase');
 const { Kafka } = require('kafkajs');
 const Redis = require('ioredis');
-const serviceAccount = require('../../comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json');
-
-// Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
 
 // Initialize Redis with proper authentication and error handling
 const redis = new Redis({

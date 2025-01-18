@@ -39,41 +39,29 @@ const ChatProvider = ({ children }) => {
   const initializeFirebase = async () => {
     console.log('🔥 Starting Firebase initialization...');
 
+    // Check if we're in a secure context (HTTPS or localhost)
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1';
+    const isSecure = window.location.protocol === 'https:';
+
+    if (!isLocalhost && !isSecure) {
+      console.error('Firebase Messaging requires HTTPS or localhost');
+      return;
+    }
+
     if (!('Notification' in window)) {
       console.error('❌ Notifications not supported in this browser');
       return;
     }
 
-    // Force permission request even if already granted
-    try {
-      console.log('Current permission status:', Notification.permission);
-      
-      // Test if notifications work directly
-      if (Notification.permission === 'granted') {
-        // Create a direct browser notification (not FCM)
-        const testNotif = new Notification('Permission Test', {
-          body: 'Testing if browser notifications work',
-          icon: '/icon.png'
-        });
-        console.log('Test notification created:', testNotif);
-      } else {
-        // Request permission again
-        const permission = await Notification.requestPermission();
-        console.log('New permission status:', permission);
-        
-        if (permission === 'granted') {
-          const testNotif = new Notification('Permission Granted', {
-            body: 'Notifications are now enabled!',
-            icon: '/icon.png'
-          });
-          console.log('Test notification created:', testNotif);
-        }
-      }
-    } catch (error) {
-      console.error('Error handling notifications:', error);
+    // Check if service worker is supported
+    if (!('serviceWorker' in navigator)) {
+      console.error('❌ Service Worker not supported in this browser');
+      return;
     }
 
     try {
+      // Initialize Firebase first
       const app = initializeApp({
         apiKey: "AIzaSyC2ZYTLEBAcMvmYa5fhQdDoUrcWa9YzdTA",
         authDomain: "comconnect-2b1d7.firebaseapp.com",
@@ -83,11 +71,29 @@ const ChatProvider = ({ children }) => {
         appId: "1:854170103458:web:9661dd687bcdf4e12db1fb",
         measurementId: "G-EHQ1LTCGJS"
       });
+      console.log('Firebase app initialized');
+
+      // Register service worker
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      console.log('Service Worker registered:', registration);
+
+      // Initialize messaging after service worker is ready
+      await navigator.serviceWorker.ready;
       const messaging = getMessaging(app);
+      console.log('Firebase Messaging initialized');
+
+      // Request notification permission
+      if (Notification.permission === 'granted') {
+        console.log('Notification permission already granted');
+      } else {
+        const permission = await Notification.requestPermission();
+        console.log('New permission status:', permission);
+      }
 
       // Get FCM token
       const token = await getToken(messaging, {
-        vapidKey: 'BG2WUN3-ZbSy5ZcsEA6Jz0A84aYStjpe59fwTTVNsCPF6zS9mNN4gGR7iHzw4EUfneHkAQektAhblloHt0_0Pb0'
+        vapidKey: 'BG2WUN3-ZbSy5ZcsEA6Jz0A84aYStjpe59fwTTVNsCPF6zS9mNN4gGR7iHzw4EUfneHkAQektAhblloHt0_0Pb0',
+        serviceWorkerRegistration: registration
       });
       
       if (token) {

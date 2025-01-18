@@ -1,6 +1,63 @@
 version: '3.8'
 
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:5000
+      - REACT_APP_SOCKET_URL=http://localhost:5000
+      - NODE_ENV=development
+      - DANGEROUSLY_DISABLE_HOST_CHECK=true
+      - WDS_SOCKET_PORT=0
+    volumes:
+      - ./frontend/public:/app/frontend/public
+      - ./frontend/src:/app/frontend/src
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - NODE_ENV=development
+      - KAFKA_BROKER=kafka:9093
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGODB_URI=mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.t7rpzk9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - CORS_ORIGIN=http://localhost:3000
+      - PORT=5000
+    volumes:
+      - ./comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json:/app/backend/config/comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json
+    depends_on:
+      - redis
+      - kafka
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   zookeeper:
     image: bitnami/zookeeper:3.7.0
     container_name: zookeeper
@@ -13,7 +70,7 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - kafka_network
+      - app_network
 
   kafka:
     image: wurstmeister/kafka:2.13-2.8.1
@@ -27,10 +84,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE_KAFKA
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     ports:
-      - "9092:9092"  # External listener port
-      - "9093:9093"  # Internal listener port
+      - "9092:9092"
+      - "9093:9093"
     networks:
-      - kafka_network
+      - app_network
 
   redis:
     image: redis:latest
@@ -38,8 +95,8 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - kafka_network
+      - app_network
 
 networks:
-  kafka_network:
+  app_network:
     driver: bridge

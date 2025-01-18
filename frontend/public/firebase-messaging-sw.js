@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging-compat.js');
 
 console.log('🔥 Service Worker Loading...');
 
@@ -7,13 +7,17 @@ const firebaseConfig = {
   apiKey: "AIzaSyC2ZYTLEBAcMvmYa5fhQdDoUrcWa9YzdTA",
   authDomain: "comconnect-2b1d7.firebaseapp.com",
   projectId: "comconnect-2b1d7",
+  storageBucket: "comconnect-2b1d7.firebasestorage.app",
   messagingSenderId: "854170103458",
-  appId: "1:854170103458:web:9661dd687bcdf4e12db1fb"
+  appId: "1:854170103458:web:9661dd687bcdf4e12db1fb",
+  measurementId: "G-EHQ1LTCGJS"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 console.log('✅ Firebase initialized in SW');
 
+// Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = firebase.messaging();
 console.log('✅ Messaging initialized in SW');
 
