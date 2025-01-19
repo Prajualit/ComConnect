@@ -274,6 +274,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         isOpen={isOpen} 
         onClose={onClose} 
         workspaceId={selectedChat?.workspace}
+        selectedChat={selectedChat}
       />
     </>
   );

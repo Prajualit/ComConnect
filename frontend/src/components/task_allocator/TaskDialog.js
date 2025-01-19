@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -13,17 +13,46 @@ import {
   Button,
   useToast,
   Stack,
+  Box,
+  List,
+  ListItem,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { ChatState } from "../../Context/ChatProvider";
 
-const TaskDialog = ({ isOpen, onClose, workspaceId }) => {
+const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
   const { user } = ChatState();
   const toast = useToast();
   const [heading, setHeading] = useState("");
   const [description, setDescription] = useState("");
   const [email, setEmail] = useState("");
   const [attachments, setAttachments] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [channelUsers, setChannelUsers] = useState([]);
+
+  useEffect(() => {
+    if (selectedChat) {
+      // Get users from the current chat/channel
+      setChannelUsers(selectedChat.users || []);
+    }
+  }, [selectedChat]);
+
+  const handleEmailSearch = (searchTerm) => {
+    setEmail(searchTerm);
+    if (searchTerm.trim()) {
+      const filteredUsers = channelUsers.filter(user => 
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setSearchResults(filteredUsers);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const selectUser = (selectedUser) => {
+    setEmail(selectedUser.email);
+    setSearchResults([]);
+  };
 
   const handleSubmit = async () => {
     try {
@@ -85,12 +114,41 @@ const TaskDialog = ({ isOpen, onClose, workspaceId }) => {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </FormControl>
-            <FormControl isRequired>
+            <FormControl isRequired position="relative">
               <FormLabel>Assignee Email</FormLabel>
               <Input
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailSearch(e.target.value)}
+                placeholder="Type to search users in channel"
               />
+              {searchResults.length > 0 && (
+                <Box
+                  position="absolute"
+                  top="100%"
+                  left={0}
+                  right={0}
+                  bg="white"
+                  boxShadow="md"
+                  borderRadius="md"
+                  maxH="200px"
+                  overflowY="auto"
+                  zIndex={1000}
+                >
+                  <List spacing={2}>
+                    {searchResults.map((user) => (
+                      <ListItem
+                        key={user._id}
+                        p={2}
+                        cursor="pointer"
+                        _hover={{ bg: "gray.100" }}
+                        onClick={() => selectUser(user)}
+                      >
+                        {user.email}
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              )}
             </FormControl>
             <FormControl>
               <FormLabel>Attachments</FormLabel>
