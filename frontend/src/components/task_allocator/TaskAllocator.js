@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import StatusPanel from "./StatusPanel";
 import { ChatState } from "../../Context/ChatProvider";
+import AllocatedTasks from "./AllocatedTasks";
 
 const TaskAllocator = ({ workspaceId }) => {
   const { user } = ChatState();
@@ -159,6 +160,9 @@ const TaskAllocator = ({ workspaceId }) => {
           />
         </Box>
       </Flex>
+      <Box mt={8}>
+        <AllocatedTasks />
+      </Box>
       {/* Add modal for task details here */}
     </Box>
   );

@@ -14,6 +14,8 @@ import "./styles.css";
 import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
+import TaskDialog from "./task_allocator/TaskDialog";
+import { useDisclosure } from "@chakra-ui/react";
 const ENDPOINT = "";
 var socket, selectedChatCompare;
 
@@ -25,6 +27,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const defaultOptions = {
     loop: true,
@@ -147,6 +150,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
+    if (e.target.value === "/task") {
+      onOpen();
+      setNewMessage("");
+    }
+
     if (!socketConnected) return;
 
     if (!typing) {
@@ -262,6 +270,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Text>
         </Box>
       )}
+      <TaskDialog 
+        isOpen={isOpen} 
+        onClose={onClose} 
+        workspaceId={selectedChat?.workspace}
+      />
     </>
   );
 };
