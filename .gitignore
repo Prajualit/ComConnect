@@ -2,9 +2,11 @@
 node_modules
 /.pnp
 .pnp.js
-
+docker-publish.sh
 # Testing
 /coverage
+
+docker-test.sh 
 
 # Production
 /frontend/build

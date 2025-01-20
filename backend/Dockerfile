@@ -3,20 +3,35 @@ FROM node:18-slim
 # Install wget for health checks
 RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app/backend
 
-# Copy backend package files
+# Copy package files first
 COPY package*.json ./
 
-# Install dependencies and nodemon globally
+# Install ALL dependencies in a single layer
 RUN npm install --include=dev && \
-    npm install -g nodemon
+    npm install -g nodemon && \
+    npm install \
+    express-async-handler \
+    express \
+    mongoose \
+    dotenv \
+    jsonwebtoken \
+    bcryptjs \
+    socket.io \
+    cors \
+    colors \
+    firebase-admin \
+    kafkajs \
+    redis
 
-# Don't copy the application files as they will be mounted
-# COPY . .
+# Now copy the rest of the application
+COPY . .
+
+# Create a directory for node_modules and ensure it exists
+RUN mkdir -p node_modules && \
+    chmod -R 777 node_modules
 
 EXPOSE 5000
 
-# Run the backend server with nodemon for auto-reloading
 CMD ["nodemon", "--legacy-watch", "server.js"] 
