@@ -10,14 +10,11 @@ RUN npm install --legacy-peer-deps && \
     npm install firebase@11.1.0 \
     @firebase/app@0.9.27 \
     @firebase/auth@1.6.0 \
-    @firebase/messaging@0.12.5
+    @firebase/messaging@0.12.5 \
+    nodemon -g
 
-# Copy the rest of the application
-COPY . .
-
-# Ensure service worker has correct permissions and exists
-RUN touch public/firebase-messaging-sw.js && \
-    chmod 644 public/firebase-messaging-sw.js
+# Don't copy the rest of the application as it will be mounted
+# COPY . .
 
 EXPOSE 3000
 
