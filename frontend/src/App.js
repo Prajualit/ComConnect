@@ -9,7 +9,7 @@ import WorkspaceProvider from "./Context/WorkspaceProvider";
 import TaskAllocatorPage from "./components/task_allocator/TaskAllocatorPage";
 import MyTasks from "./components/task_allocator/MyTasks";
 import Signup from "./components/Authentication/Signup";
-
+import Geo from "./components/geolocation/App";
 const App = () => {
   return (
     <Router>
@@ -20,6 +20,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Homepage />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/geo-location" element={<Geo />} />
                 <Route path="/tasks/:workspaceId" element={<TaskAllocatorPage />} /> {/* Updated route */}
                 <Route path="/my-tasks" element={<MyTasks />} />
                 <Route path="/chats" element={<Chatpage />} />
