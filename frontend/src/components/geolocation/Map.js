@@ -54,13 +54,13 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
 
         // Update other users' markers
         otherUsers.forEach(user => {
-            const { userId, latitude, longitude } = user;
+            const { userId, userName, latitude, longitude } = user;
             if (otherMarkersRef.current.has(userId)) {
                 otherMarkersRef.current.get(userId).setLatLng([latitude, longitude]);
             } else {
                 const marker = L.marker([latitude, longitude])
                     .addTo(mapRef.current)
-                    .bindPopup(`User ${userId}`);
+                    .bindPopup(`${userName || 'User ' + userId}`);
                 otherMarkersRef.current.set(userId, marker);
             }
         });

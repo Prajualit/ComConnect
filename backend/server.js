@@ -43,50 +43,108 @@ const server = app.listen(PORT, () =>
   console.log(`Server running on PORT ${PORT}...`)
 );
 
-// Setup Socket.IO
+// Setup Socket.IO with improved configuration
 const io = require("socket.io")(server, {
-  pingTimeout: 60000,
+  pingTimeout: 120000, // Increase ping timeout
+  pingInterval: 25000, // Add ping interval
   cors: {
     origin: "http://localhost:3000",
     credentials: true,
   },
+  connectTimeout: 45000, // Add connection timeout
+  reconnection: true, // Enable reconnection
+  reconnectionAttempts: 5, // Maximum reconnection attempts
+  reconnectionDelay: 1000, // Initial delay between reconnection attempts
+  reconnectionDelayMax: 5000, // Maximum delay between reconnection attempts
 });
 
-// Active Users for Geolocation
+// Active Users for Geolocation with last known locations
 const activeUsers = new Map();
+const userSockets = new Map(); // Track user socket mappings
 
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
 
-  // Geolocation logic
-  const existingLocations = Array.from(activeUsers.entries()).map(
-    ([id, location]) => ({
-      userId: id,
-      ...location,
-    })
-  );
-  socket.emit("initial-locations", existingLocations);
-
-  socket.on("location-update", (location) => {
-    activeUsers.set(socket.id, location);
-    io.emit("location-update", {
-      userId: socket.id,
-      ...location,
-    });
+  // Handle user authentication and mapping
+  socket.on("setup", (userData) => {
+    if (userData && userData._id) {
+      userSockets.set(userData._id, socket.id);
+      socket.userId = userData._id;
+      socket.userName = userData.name; // Store username in socket object
+      socket.join(userData._id);
+      socket.emit("connected");
+      
+      // Send existing locations to newly connected user
+      const existingLocations = Array.from(activeUsers.entries()).map(
+        ([id, locationData]) => ({
+          userId: id,
+          userName: locationData.userName, // Include username in existing locations
+          ...locationData,
+          timestamp: locationData.timestamp
+        })
+      );
+      socket.emit("initial-locations", existingLocations);
+    }
   });
 
-  socket.on("disconnect", () => {
-    activeUsers.delete(socket.id);
-    io.emit("user-disconnected", socket.id);
-    console.log("User disconnected:", socket.id);
+  // Enhanced location update handling
+  socket.on("location-update", (location) => {
+    if (socket.userId) {
+      const locationData = {
+        ...location,
+        timestamp: Date.now(),
+        socketId: socket.id,
+        // Add user information
+        userName: socket.userName // We'll set this during setup
+      };
+      
+      activeUsers.set(socket.userId, locationData);
+      
+      // Broadcast to all clients except sender
+      socket.broadcast.emit("location-update", {
+        userId: socket.userId,
+        userName: socket.userName,
+        ...locationData
+      });
+    }
+  });
+
+  // Improved disconnect handling
+  socket.on("disconnect", async () => {
+    if (socket.userId) {
+      // Keep the last known location for a grace period
+      setTimeout(() => {
+        // Only remove if user hasn't reconnected
+        if (!io.sockets.adapter.rooms.has(socket.userId)) {
+          activeUsers.delete(socket.userId);
+          userSockets.delete(socket.userId);
+          io.emit("user-disconnected", socket.userId);
+          console.log("User fully disconnected:", socket.userId);
+        }
+      }, 5000); // 5 second grace period
+    }
+  });
+
+  // Handle reconnection
+  socket.on("reconnect", () => {
+    console.log("Socket reconnected:", socket.id);
+    if (socket.userId) {
+      userSockets.set(socket.userId, socket.id);
+      socket.join(socket.userId);
+      
+      // Resend location if available
+      const lastLocation = activeUsers.get(socket.userId);
+      if (lastLocation) {
+        socket.broadcast.emit("location-update", {
+          userId: socket.userId,
+          userName: socket.userName,
+          ...lastLocation
+        });
+      }
+    }
   });
 
   // Chat functionality
-  socket.on("setup", (userData) => {
-    socket.join(userData._id);
-    socket.emit("connected");
-  });
-
   socket.on("join chat", (room) => {
     socket.join(room);
     console.log("User Joined Room: " + room);
