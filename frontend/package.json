@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5001",
+    "proxy": "http://backend:5000",
   "dependencies": {
     "@chakra-ui/avatar": "^2.3.0",
     "@chakra-ui/button": "^2.1.0",
@@ -13,7 +13,7 @@
     "@chakra-ui/layout": "^2.3.1",
     "@chakra-ui/menu": "^2.2.1",
     "@chakra-ui/modal": "^2.3.1",
-    "@chakra-ui/react": "^2.8.2",
+    "@chakra-ui/react": "^2.0.0",
     "@chakra-ui/skeleton": "^2.1.0",
     "@chakra-ui/spinner": "^2.1.0",
     "@chakra-ui/toast": "^7.0.2",
@@ -24,6 +24,8 @@
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "emailjs-com": "^3.2.0",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
@@ -32,7 +34,17 @@
     "react-scrollable-feed": "^2.0.2",
     "socket.io-client": "^4.7.5",
     "update": "^0.7.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "firebase": "^10.8.0",
+    "@firebase/app": "^0.9.27",
+    "@firebase/auth": "^1.6.0",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "framer-motion": "^6.0.0",
+    "@chakra-ui/system": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   },
   "resolutions": {
     "react": "^18.3.1",

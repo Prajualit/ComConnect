@@ -125,6 +125,8 @@ const MyChats = ({ fetchAgain }) => {
           </Button>
         </GroupChatModal>
 
+        
+
         <Button
           d="flex"
           fontSize={{ base: "17px", md: "10px", lg: "17px" }}
@@ -133,6 +135,16 @@ const MyChats = ({ fetchAgain }) => {
           onClick={() => navigate(`/tasks/${workspaceId}`)} // Pass workspaceId in the URL
         >
           Go to Tasks
+        </Button>
+
+        <Button
+          d="flex"
+          fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+          textAlign={"center"}
+          className="taskbtn groupchatbtn"
+          onClick={() => navigate(`/geo-location`)} // Pass workspaceId in the URL
+        >
+          map
         </Button>
       </Box>
       <Box

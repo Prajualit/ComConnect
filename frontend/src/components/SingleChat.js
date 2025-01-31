@@ -4,7 +4,18 @@ import { Box, Text  } from "@chakra-ui/layout";
 import "./styles.css";
 import { Avatar } from "@chakra-ui/avatar";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Button, flexbox, IconButton, Spinner, useToast } from "@chakra-ui/react";
+import { 
+  Button, 
+  flexbox, 
+  IconButton, 
+  Spinner, 
+  useToast,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuDivider
+} from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -16,11 +27,9 @@ import "./styles.css";
 import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
+import TaskDialog from "./task_allocator/TaskDialog";
+import { useDisclosure } from "@chakra-ui/react";
 import SideDrawer from "./miscellaneous/SideDrawer";
-import {Menu , MenuDivider,MenuItem,MenuList,MenuButton } from "@chakra-ui/menu";
-import { useNavigate } from "react-router-dom";
-
-
 const ENDPOINT = "";
 var socket, selectedChatCompare;
 
@@ -32,12 +41,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
-  const navigate = useNavigate();
-
-  const logoutHandler = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/");
-  };
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const defaultOptions = {
     loop: true,
@@ -160,6 +164,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
+    if (e.target.value === "/task") {
+      onOpen();
+      setNewMessage("");
+    }
+
     if (!socketConnected) return;
 
     if (!typing) {
@@ -176,6 +185,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setTyping(false);
       }
     }, timerLength);
+  };
+
+  const logoutHandler = () => {
+    localStorage.removeItem("userInfo");
+    window.location.href = "/";
   };
 
   return (
@@ -321,6 +335,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Text>
         </Box>
       )}
+      <TaskDialog 
+        isOpen={isOpen} 
+        onClose={onClose} 
+        workspaceId={selectedChat?.workspace}
+        selectedChat={selectedChat}
+      />
     </>
   );
 };

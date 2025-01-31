@@ -26,7 +26,8 @@ const Signup = () => {
       toast({
         title: "Please Fill all the Feilds",
         status: "warning",
-        duration: 5001,
+        duration: 5000
+        ,
         isClosable: true,
         position: "bottom",
       });

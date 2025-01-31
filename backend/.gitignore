@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+/config/comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json
+
 # testing
 /coverage
 
