@@ -10,6 +10,7 @@ import TaskAllocatorPage from "./components/task_allocator/TaskAllocatorPage";
 import MyTasks from "./components/task_allocator/MyTasks";
 import Signup from "./components/Authentication/Signup";
 import Geo from "./components/geolocation/App";
+
 const App = () => {
   useEffect(() => {
     const requestNotificationPermission = async () => {

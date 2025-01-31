@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import MapComponent from './Map';
+import { indexedDBService } from '../../services/indexedDBService';
+import { ChatState } from '../../Context/ChatProvider';
 
 const Geo = () => {
+    const { user } = ChatState();
+    const [isLoading, setIsLoading] = useState(true);
     const [location, setLocation] = useState(null);
     const [accuracy, setAccuracy] = useState(null);
     const [otherUsers, setOtherUsers] = useState(new Map());
@@ -12,122 +16,140 @@ const Geo = () => {
     const reconnectAttempts = useRef(0);
     const maxReconnectAttempts = 5;
 
-    // Initialize socket connection
+    // Handle location updates
+    const handleLocationUpdate = useCallback(async (position) => {
+        if (!user?._id) return;
+
+        const { latitude, longitude, accuracy } = position.coords;
+        const locationData = {
+            latitude,
+            longitude,
+            accuracy,
+            userId: user._id,
+            timestamp: Date.now()
+        };
+
+        // Update local state
+        setLocation(locationData);
+        setAccuracy(accuracy);
+
+        try {
+            // Store in IndexedDB
+            await indexedDBService.storeLocation(locationData);
+
+            // If online, send to server
+            if (socketRef.current?.connected) {
+                socketRef.current.emit('location-update', locationData);
+            }
+        } catch (error) {
+            console.error('Error handling location update:', error);
+        }
+    }, [user]);
+
+    // Sync unsynced locations when coming online
+    const syncLocations = useCallback(async () => {
+        try {
+            const unsynedLocations = await indexedDBService.getUnsynedLocations();
+            if (unsynedLocations.length > 0 && socketRef.current?.connected) {
+                // Send locations in batches
+                const batchSize = 10;
+                for (let i = 0; i < unsynedLocations.length; i += batchSize) {
+                    const batch = unsynedLocations.slice(i, i + batchSize);
+                    socketRef.current.emit('bulk-location-update', batch);
+                    
+                    // Mark these locations as synced
+                    const timestamps = batch.map(loc => loc.timestamp);
+                    await indexedDBService.markLocationsAsSynced(timestamps);
+                }
+            }
+        } catch (error) {
+            console.error('Error syncing locations:', error);
+        }
+    }, []);
+
+    // Initialize socket connection with user token
     const initializeSocket = useCallback(() => {
-        const apiUrl = process.env.REACT_APP_API_URL;
-        socketRef.current = io(apiUrl, {
+        if (!user?.token) return;
+
+        const socket = io(process.env.REACT_APP_API_URL, {
             reconnection: true,
             reconnectionAttempts: maxReconnectAttempts,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             timeout: 20000,
-        });
-
-        // Socket event handlers
-        socketRef.current.on('connect', () => {
-            console.log('Socket connected');
-            setConnectionStatus('connected');
-            reconnectAttempts.current = 0;
-            
-            // Re-setup user data after reconnection
-            const userData = JSON.parse(localStorage.getItem('userInfo'));
-            if (userData) {
-                socketRef.current.emit('setup', userData);
+            auth: {
+                token: user.token
             }
         });
 
-        socketRef.current.on('disconnect', () => {
+        socket.on('connect', () => {
+            console.log('Socket connected');
+            setConnectionStatus('connected');
+            reconnectAttempts.current = 0;
+            syncLocations(); // Sync any stored locations
+        });
+
+        socket.on('disconnect', () => {
             console.log('Socket disconnected');
             setConnectionStatus('disconnected');
         });
 
-        socketRef.current.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-            if (reconnectAttempts.current < maxReconnectAttempts) {
-                reconnectAttempts.current += 1;
-                setTimeout(() => {
-                    socketRef.current.connect();
-                }, 1000 * reconnectAttempts.current);
-            }
+        socket.on('other-users-location', (users) => {
+            setOtherUsers(new Map(users.map(user => [user.userId, user])));
         });
 
-        return () => {
-            if (socketRef.current) {
-                socketRef.current.disconnect();
-            }
-        };
-    }, []);
+        socketRef.current = socket;
+    }, [user?.token, syncLocations]);
 
     // Start location watching
     const startLocationWatch = useCallback(() => {
-        if (navigator.geolocation) {
-            watchIdRef.current = navigator.geolocation.watchPosition(
-                (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-                    const locationData = {
-                        latitude,
-                        longitude,
-                        accuracy,
-                        timestamp: Date.now()
-                    };
-                    
-                    setLocation(locationData);
-                    setAccuracy(accuracy);
-                    
-                    // Emit location only if socket is connected
-                    if (socketRef.current?.connected) {
-                        socketRef.current.emit('location-update', locationData);
-                    }
-                },
-                (error) => console.error('Location error:', error),
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(registration => {
+                if (navigator.geolocation) {
+                    watchIdRef.current = navigator.geolocation.watchPosition(
+                        handleLocationUpdate,
+                        (error) => console.error('Location error:', error),
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
                 }
-            );
+            });
         }
-    }, []);
+    }, [handleLocationUpdate]);
 
     useEffect(() => {
-        const cleanup = initializeSocket();
-        startLocationWatch();
+        if (user) {
+            setIsLoading(false);
+            initializeSocket();
+            startLocationWatch();
+            
+            // Clean up old locations every hour
+            const cleanupInterval = setInterval(() => {
+                indexedDBService.clearOldLocations(1);
+            }, 60 * 60 * 1000);
 
-        // Setup socket event listeners
-        if (socketRef.current) {
-            socketRef.current.on('initial-locations', (locations) => {
-                const usersMap = new Map();
-                locations.forEach(loc => {
-                    if (loc.userId !== socketRef.current.id) {
-                        usersMap.set(loc.userId, loc);
-                    }
-                });
-                setOtherUsers(usersMap);
-            });
-
-            socketRef.current.on('location-update', (data) => {
-                if (data.userId !== socketRef.current.id) {
-                    setOtherUsers(prev => new Map(prev.set(data.userId, data)));
+            return () => {
+                if (watchIdRef.current) {
+                    navigator.geolocation.clearWatch(watchIdRef.current);
                 }
-            });
-
-            socketRef.current.on('user-disconnected', (userId) => {
-                setOtherUsers(prev => {
-                    const newMap = new Map(prev);
-                    newMap.delete(userId);
-                    return newMap;
-                });
-            });
+                if (socketRef.current) {
+                    socketRef.current.disconnect();
+                }
+                clearInterval(cleanupInterval);
+            };
         }
+    }, [user, initializeSocket, startLocationWatch]);
 
-        // Cleanup function
-        return () => {
-            cleanup();
-            if (watchIdRef.current) {
-                navigator.geolocation.clearWatch(watchIdRef.current);
-            }
-        };
-    }, [initializeSocket, startLocationWatch]);
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!user) {
+        return <div>Please log in to access the map.</div>;
+    }
 
     return (
         <div>

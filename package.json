@@ -1,41 +1,14 @@
 {
   "name": "comconnect",
-  "homepage": "https://github.com/spec-nith/ComConnect",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build",
   "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-    "dev": "npm run dev:frontend & npm run dev:backend",
-    "dev:frontend": "cd frontend && npm run start",
-    "dev:backend": "cd backend && npm run dev",
-    "build": "npm run build:frontend && npm run build:backend",
-    "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npm run build",
-    "start": "cd backend && npm run start",
-    "vercel-build": "npm run build"
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd frontend && npm start",
+    "serve": "cd frontend && node server.js"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "firebase": "^11.1.0",
-    "firebase-admin": "^13.0.2",
-    "ioredis": "^5.4.2",
-    "jsonwebtoken": "^9.0.2",
-    "leaflet": "^1.9.4",
-    "kafkajs": "^2.2.4",
-    "mongoose": "^8.4.1",
-    "socket.io": "^4.7.5"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
