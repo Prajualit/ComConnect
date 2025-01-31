@@ -5,13 +5,15 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    image: ${DOCKER_USERNAME}/comconnect-frontend:latest
     ports:
       - "3000:3000"
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:5000
       - REACT_APP_SOCKET_URL=http://localhost:5000
       - NODE_ENV=development
+      - DANGEROUSLY_DISABLE_HOST_CHECK=true
+      - WDS_SOCKET_PORT=0
+      - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     volumes:
       - ./frontend:/app/frontend
@@ -20,6 +22,7 @@ services:
       - backend
     networks:
       - app_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:3000"]
       interval: 10s
@@ -30,7 +33,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: ${DOCKER_USERNAME}/comconnect-backend:latest
     ports:
       - "5000:5000"
     environment:
@@ -42,6 +44,9 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - MONGODB_URI=mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.t7rpzk9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - CORS_ORIGIN=http://localhost:3000
+      - PORT=5000
+      - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./backend:/app/backend
       - /app/backend/node_modules
@@ -51,66 +56,52 @@ services:
       - kafka
     networks:
       - app_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:5000/health"]
       interval: 10s
       timeout: 5s
       retries: 3
 
-  redis:
-    image: ${DOCKER_USERNAME}/comconnect-redis:latest
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - app_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
   zookeeper:
-    image: ${DOCKER_USERNAME}/comconnect-zookeeper:latest
+    image: bitnami/zookeeper:3.7.0
+    container_name: zookeeper
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_LISTENER_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ALLOW_ANONYMOUS_LOGIN: "yes"
     ports:
       - "2181:2181"
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2181"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
 
   kafka:
-    image: ${DOCKER_USERNAME}/comconnect-kafka:latest
+    image: wurstmeister/kafka:2.13-2.8.1
+    container_name: kafka
     depends_on:
       - zookeeper
+    environment:
+      KAFKA_LISTENERS: INSIDE_KAFKA://0.0.0.0:9093,OUTSIDE_KAFKA://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE_KAFKA://kafka:9093,OUTSIDE_KAFKA://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE_KAFKA:PLAINTEXT,OUTSIDE_KAFKA:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE_KAFKA
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     ports:
       - "9092:9092"
       - "9093:9093"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9093,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
       - app_network
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
 
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  redis_data:
