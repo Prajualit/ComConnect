@@ -1,69 +1,79 @@
 const admin = require('../config/firebase');
 const { Kafka } = require('kafkajs');
 const Redis = require('ioredis');
+const fs = require('fs');
+const path = require('path');
 
-// Initialize Redis with proper authentication and error handling
-const redis = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD || 'mypassword', // Use the password from your .env file
-  retryStrategy: (times) => {
-    const maxRetryTime = 3000; // Maximum retry time in milliseconds
-    const retryTime = Math.min(times * 500, maxRetryTime);
-    return retryTime;
-  },
-  maxRetriesPerRequest: null, // Retry indefinitely
-  enableOfflineQueue: true,
+console.log('🔄 Initializing Redis with config:', {
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  tls: true
 });
 
-// Add connection event handlers
+// Redis Configuration - Connect through EC2
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'ec2-3-6-113-80.ap-south-1.compute.amazonaws.com', // EC2 public DNS
+  port: parseInt(process.env.REDIS_PORT) || 6379,
+  retryStrategy(times) {
+    const delay = Math.min(times * 2000, 10000);
+    console.log(`⏳ Redis connection attempt ${times}, retrying in ${delay}ms`);
+    return delay;
+  }
+});
+
+// Enhanced Redis event listeners
 redis.on('connect', () => {
-  console.log('Redis client connected');
+  console.log('✅ Redis connecting through EC2:', process.env.REDIS_HOST);
 });
 
 redis.on('ready', () => {
-  console.log('Redis client ready');
+  console.log('✅ Redis connection established and ready');
 });
 
 redis.on('error', (err) => {
-  console.error('Redis Error:', err);
+  console.error('❌ Redis Error:', err.message);
+  console.log('Error details:', {
+    code: err.code,
+    syscall: err.syscall,
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+  });
 });
 
-redis.on('end', () => {
-  console.log('Redis connection ended');
+redis.on('close', () => {
+  console.log('❌ Redis connection closed');
 });
 
-// Test connection
-const testRedisConnection = async () => {
+redis.on('reconnecting', (ms) => {
+  console.log(`🔄 Redis reconnecting in ${ms}ms`);
+});
+
+// Test connection function
+async function testRedisConnection() {
   try {
-    await redis.ping();
-    console.log('Redis connection test successful');
+    console.log('🔄 Testing Redis connection...');
+    const result = await redis.ping();
+    console.log('Redis ping result:', result);
+    return result === 'PONG';
   } catch (error) {
-    console.error('Redis connection test failed:', error);
+    console.error('❌ Redis connection test failed:', error.message);
+    return false;
   }
-};
+}
 
-testRedisConnection();
-
-// Initialize Kafka with proper configuration and error handling
+// Kafka Configuration
 const kafka = new Kafka({
-  clientId: 'notification-service',
-  brokers: process.env.KAFKA_BROKER ? process.env.KAFKA_BROKER.split(',') : ['localhost:9092'],
+  clientId: process.env.KAFKA_CLIENT_ID || 'notification-service',
+  brokers: [process.env.KAFKA_BROKER || 'ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:9092'],
   retry: {
     initialRetryTime: 100,
-    retries: 8,
-  },
+    retries: 8
+  }
 });
 
-
-const producer = kafka.producer({
-  allowAutoTopicCreation: true,
-  transactionTimeout: 30000
-});
-
+const producer = kafka.producer();
 const consumer = kafka.consumer({ 
-  groupId: 'chat-notification-group',
-  sessionTimeout: 30000
+  groupId: process.env.KAFKA_GROUP_ID || 'notification-group' 
 });
 
 // Enhanced error handling for producer
@@ -85,60 +95,67 @@ consumer.on('consumer.network.request_timeout', (error) => {
 });
 
 class NotificationService {
+  constructor() {
+    this.redis = redis;
+    this.producer = producer;
+    this.consumer = consumer;
+    this.initialize();
+  }
+
   async initialize() {
     try {
-      // Connect producer and consumer with proper error handling
-      await Promise.all([
-        producer.connect()
-          .catch(error => {
-            console.error('❌ Failed to connect Kafka producer:', error);
-            throw error;
-          }),
-        consumer.connect()
-          .catch(error => {
-            console.error('❌ Failed to connect Kafka consumer:', error);
-            throw error;
-          })
-      ]);
-
-      console.log('✅ Kafka connections initialized successfully');
-      await this.setupKafkaConsumer();
-    } catch (error) {
-      console.error('❌ Failed to initialize Kafka connections:', error);
-      throw error;
-    }
-  }
-
-  async setupKafkaConsumer() {
-    try {
-      await consumer.subscribe({ topic: 'chat-notifications', fromBeginning: true });
-      console.log('✅ Consumer subscribed to chat-notifications topic');
+      console.log('🔄 Initializing NotificationService...');
+      console.log('Kafka Broker:', process.env.KAFKA_BROKER);
       
-      await consumer.run({
+      // Connect to Kafka
+      await this.producer.connect();
+      console.log('✅ Kafka Producer connected');
+      
+      await this.consumer.connect();
+      console.log('✅ Kafka Consumer connected');
+      
+      // Subscribe to topics
+      await this.consumer.subscribe({ 
+        topics: ['notifications'] 
+      });
+      console.log('✅ Subscribed to Kafka topics');
+
+      // Start consuming messages
+      await this.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-          console.log('📨 Received message:', {
+          console.log('Received message:', {
             topic,
-            partition,
-            value: message.value.toString(),
-            timestamp: message.timestamp
+            value: message.value.toString()
           });
-          
-          const notification = JSON.parse(message.value.toString());
-          await this.sendNotification(notification);
         },
       });
+
+      console.log('✅ NotificationService initialized successfully');
     } catch (error) {
-      console.error('❌ Consumer setup error:', error);
-      throw error;
+      console.error('❌ Error initializing NotificationService:', error);
+      // Don't throw error, let service retry
     }
   }
 
-  async cacheUserToken(userId, fcmToken) {
-    await redis.set(`user:${userId}:fcmToken`, fcmToken);
-  }
-
-  async getFCMToken(userId) {
-    return await redis.get(`user:${userId}:fcmToken`);
+  async testConnections() {
+    try {
+      const redisPing = await this.redis.ping();
+      const kafkaConnected = this.producer.isConnected();
+      
+      return {
+        redis: redisPing === 'PONG',
+        kafka: kafkaConnected,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Connection test error:', error);
+      return {
+        redis: false,
+        kafka: false,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
+    }
   }
 
   async sendNotification(notification) {
@@ -203,7 +220,7 @@ class NotificationService {
       if (error.code === 'messaging/invalid-registration-token' || 
           error.code === 'messaging/registration-token-not-registered') {
         console.log('🔄 Removing invalid token for user:', userId);
-        await redis.del(`user:${userId}:fcmToken`);
+        await this.redis.del(`user:${userId}:fcmToken`);
       }
       throw error;
     }
@@ -215,17 +232,17 @@ class NotificationService {
 
       // Verify Kafka connection first
       try {
-        await producer.send({
+        await this.producer.send({
           topic: 'test-topic',
           messages: [{ value: 'test message' }],
         });
       } catch (error) {
         console.log('❌ Kafka producer not connected. Reconnecting...');
-        await producer.connect();
+        await this.producer.connect();
       }
 
       // Send notification to Kafka
-      await producer.send({
+      await this.producer.send({
         topic: 'chat-notifications',
         messages: [
           {
@@ -245,27 +262,16 @@ class NotificationService {
       await this.sendNotification(notification);
     }
   }
-  
 
-  async testKafkaConnection() {
-    try {
-      // Test producer
-      await producer.send({
-        topic: 'test-topic',
-        messages: [{ value: 'test message' }]
-      });
-      console.log('✅ Kafka producer test successful');
+  async cacheUserToken(userId, fcmToken) {
+    await this.redis.set(`user:${userId}:fcmToken`, fcmToken);
+  }
 
-      // Test consumer
-      await consumer.subscribe({ topic: 'test-topic' });
-      console.log('✅ Kafka consumer subscription test successful');
-
-      return true;
-    } catch (error) {
-      console.error('❌ Kafka connection test failed:', error);
-      return false;
-    }
+  async getFCMToken(userId) {
+    return await this.redis.get(`user:${userId}:fcmToken`);
   }
 }
 
-module.exports = new NotificationService();
+// Export a single instance
+const notificationService = new NotificationService();
+module.exports = notificationService;

@@ -23,7 +23,8 @@ RUN npm install --include=dev && \
     colors \
     firebase-admin \
     kafkajs \
-    redis
+    ioredis \
+    tls
 
 # Now copy the rest of the application
 COPY . .

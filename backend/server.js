@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const Connection = require("./config/db");
 const cors = require("cors");
+const NotificationService = require("./services/notificationService");
 
 // Add process error handlers
 process.on('uncaughtException', (error) => {
@@ -13,7 +14,32 @@ process.on('unhandledRejection', (error) => {
   console.error('❌ Unhandled Rejection:', error);
 });
 
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Load environment variables with multiple path attempts
+const envPaths = [
+  path.resolve(__dirname, '../.env'),
+  path.resolve(__dirname, '.env')
+];
+
+let envLoaded = false;
+for (const envPath of envPaths) {
+  const result = dotenv.config({ path: envPath });
+  if (!result.error) {
+    console.log(`✅ Environment loaded from: ${envPath}`);
+    envLoaded = true;
+    break;
+  }
+}
+
+if (!envLoaded) {
+  console.warn('⚠️ No .env file found in any of the searched paths');
+}
+
+// Verify environment variables are loaded
+console.log('Environment Variables Status:');
+console.log('DB_USERNAME exists:', !!process.env.DB_USERNAME);
+console.log('DB_PASSWORD exists:', !!process.env.DB_PASSWORD); 
+console.log('REDIS_HOST exists:', !!process.env.REDIS_HOST);
+console.log('KAFKA_BROKER exists:', !!process.env.KAFKA_BROKER);
 
 const app = express();
 
@@ -52,6 +78,29 @@ app.use("/api/notification", notificationRoutes);
 // Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);
+
+// Test connections on startup
+async function testConnections() {
+  try {
+    // Test Redis and other connections
+    const connectionStatus = await NotificationService.testConnections();
+    console.log('Connection Test Results:', connectionStatus);
+    
+    if (connectionStatus.redis) {
+      console.log('✅ Redis connection successful');
+    } else {
+      console.log('❌ Redis connection failed');
+    }
+    
+    console.log('✅ All service connections tested');
+  } catch (error) {
+    console.error('❌ Service connection test failed:', error);
+    // Don't exit - allow retry logic to handle reconnection
+  }
+}
+
+// Call this before starting your Express server
+testConnections();
 
 // Connect to database and start server with retry mechanism
 const startServer = async () => {

@@ -112,4 +112,65 @@ router.post('/test-fcm', protect, async (req, res) => {
   }
 });
 
+router.get('/test-redis', async (req, res) => {
+  try {
+    const isConnected = await NotificationService.testRedisConnection();
+    if (isConnected) {
+      res.json({ status: 'success', message: 'Redis connection successful' });
+    } else {
+      res.status(500).json({ status: 'error', message: 'Redis connection failed' });
+    }
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message,
+      details: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+      }
+    });
+  }
+});
+
+router.get('/test-connections', async (req, res) => {
+  try {
+    const results = await NotificationService.testConnections();
+    res.json({
+      status: 'success',
+      connections: results,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Test sending a notification
+router.post('/test-notification', async (req, res) => {
+  try {
+    const testNotification = {
+      id: Date.now().toString(),
+      type: 'test',
+      message: 'Test notification',
+      timestamp: new Date().toISOString()
+    };
+
+    const sent = await NotificationService.sendNotification(testNotification);
+    
+    res.json({
+      status: sent ? 'success' : 'error',
+      notification: testNotification
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router; 
