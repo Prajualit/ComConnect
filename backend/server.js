@@ -41,6 +41,13 @@ console.log('DB_PASSWORD exists:', !!process.env.DB_PASSWORD);
 console.log('REDIS_HOST exists:', !!process.env.REDIS_HOST);
 console.log('KAFKA_BROKER exists:', !!process.env.KAFKA_BROKER);
 
+// Add at the start of server.js
+console.log('Environment Variables:', {
+  KAFKA_BROKER: process.env.KAFKA_BROKER,
+  REDIS_HOST: process.env.REDIS_HOST,
+  NODE_ENV: process.env.NODE_ENV
+});
+
 const app = express();
 
 // Configure CORS with more detailed options

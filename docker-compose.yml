@@ -37,16 +37,18 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - REDIS_HOST=ec2-3-6-113-80.ap-south-1.compute.amazonaws.com
-      - REDIS_PORT=6379
-      - REDIS_TLS=true
+      - NODE_ENV=development
       - KAFKA_BROKER=ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:9092
       - KAFKA_CLIENT_ID=notification-service
       - KAFKA_GROUP_ID=notification-group
+      - REDIS_HOST=ec2-3-6-113-80.ap-south-1.compute.amazonaws.com
+      - REDIS_PORT=6379
+      - MONGODB_URI=mongodb+srv://akshanshkaushal9:GRS7yWeIDcF8SEMQ@cluster0.t7rpzk9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
     volumes:
       - ./backend:/app/backend
       - /app/backend/node_modules
-      - ./comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json:/app/backend/config/comconnect-2b1d7-firebase-adminsdk-20r1n-c127902f6f.json
+    extra_hosts:
+      - "ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:3.6.113.80"
     networks:
       - app_network
     dns:
