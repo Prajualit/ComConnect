@@ -16,8 +16,9 @@ process.on('unhandledRejection', (error) => {
 
 // Load environment variables with multiple path attempts
 const envPaths = [
-  path.resolve(__dirname, '../.env'),
-  path.resolve(__dirname, '.env')
+  path.resolve(__dirname, '../../.env'),  // Two levels up to reach root
+  path.resolve(__dirname, '../.env'),     // One level up
+  path.resolve(__dirname, '.env')         // Current directory
 ];
 
 let envLoaded = false;
@@ -32,6 +33,7 @@ for (const envPath of envPaths) {
 
 if (!envLoaded) {
   console.warn('⚠️ No .env file found in any of the searched paths');
+  console.log('Searched paths:', envPaths);
 }
 
 // Verify environment variables are loaded

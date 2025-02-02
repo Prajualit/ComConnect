@@ -1,12 +1,12 @@
 FROM node:18-slim
 
-# Install wget for health checks
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+# Install wget and ping tools
+RUN apt-get update && apt-get install -y wget iputils-ping && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/backend
 
 # Copy package files first
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Install ALL dependencies in a single layer
 RUN npm install --include=dev && \
@@ -26,8 +26,8 @@ RUN npm install --include=dev && \
     ioredis \
     tls
 
-# Now copy the rest of the application
-COPY . .
+# Now copy the backend files only
+COPY backend/ .
 
 # Create a directory for node_modules and ensure it exists
 RUN mkdir -p node_modules && \
@@ -35,4 +35,4 @@ RUN mkdir -p node_modules && \
 
 EXPOSE 5000
 
-CMD ["nodemon", "--legacy-watch", "server.js"] 
+CMD ["npm", "run", "dev"]
