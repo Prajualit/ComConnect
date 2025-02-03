@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -19,6 +19,9 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { ChatState } from "../../Context/ChatProvider";
+import { debounce } from "lodash";
+
+import { API_URL } from "../../config/api.config";
 
 const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
   const { user } = ChatState();
@@ -29,6 +32,7 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
   const [attachments, setAttachments] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [channelUsers, setChannelUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (selectedChat) {
@@ -37,16 +41,24 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
     }
   }, [selectedChat]);
 
+  // Debounce email search
+  const debouncedEmailSearch = useCallback(
+    debounce((searchTerm) => {
+      if (searchTerm.trim()) {
+        const filteredUsers = channelUsers.filter(user => 
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setSearchResults(filteredUsers);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300),
+    [channelUsers]
+  );
+
   const handleEmailSearch = (searchTerm) => {
     setEmail(searchTerm);
-    if (searchTerm.trim()) {
-      const filteredUsers = channelUsers.filter(user => 
-        user.email.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setSearchResults(filteredUsers);
-    } else {
-      setSearchResults([]);
-    }
+    debouncedEmailSearch(searchTerm);
   };
 
   const selectUser = (selectedUser) => {
@@ -55,16 +67,35 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
   };
 
   const handleSubmit = async () => {
+    if (!heading.trim() || !description.trim() || !email.trim()) {
+      toast({
+        title: "Please fill all required fields",
+        status: "warning",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setLoading(true);
     try {
       const config = {
         headers: {
           Authorization: `Bearer ${user?.token}`,
+          "Content-Type": "application/json"
         },
+        timeout: 5000, // Set timeout to 5 seconds
       };
 
-      await axios.post(
-        "/api/tasks/allocate",
-        { heading, description, email, workspaceId, attachments },
+      const response = await axios.post(
+        `${API_URL}/tasks/allocate`,
+        { 
+          heading: heading.trim(), 
+          description: description.trim(), 
+          email: email.trim(), 
+          workspaceId, 
+          attachments 
+        },
         config
       );
 
@@ -72,23 +103,32 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
         title: "Task Allocated",
         description: "Task has been successfully allocated.",
         status: "success",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
 
       onClose();
+      // Reset form
       setHeading("");
       setDescription("");
       setEmail("");
       setAttachments([]);
+      setSearchResults([]);
     } catch (error) {
+      console.error('Task allocation error:', {
+        error: error.message,
+        response: error.response?.data
+      });
+
       toast({
         title: "Error allocating task",
-        description: error.message,
+        description: error.response?.data?.message || "Failed to allocate task",
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +145,7 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
               <Input
                 value={heading}
                 onChange={(e) => setHeading(e.target.value)}
+                disabled={loading}
               />
             </FormControl>
             <FormControl isRequired>
@@ -112,6 +153,7 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+                disabled={loading}
               />
             </FormControl>
             <FormControl isRequired position="relative">
@@ -120,6 +162,7 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
                 value={email}
                 onChange={(e) => handleEmailSearch(e.target.value)}
                 placeholder="Type to search users in channel"
+                disabled={loading}
               />
               {searchResults.length > 0 && (
                 <Box
@@ -141,7 +184,10 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
                         p={2}
                         cursor="pointer"
                         _hover={{ bg: "gray.100" }}
-                        onClick={() => selectUser(user)}
+                        onClick={() => {
+                          setEmail(user.email);
+                          setSearchResults([]);
+                        }}
                       >
                         {user.email}
                       </ListItem>
@@ -158,7 +204,12 @@ const TaskDialog = ({ isOpen, onClose, workspaceId, selectedChat }) => {
                 placeholder="Enter attachment URLs separated by commas"
               />
             </FormControl>
-            <Button colorScheme="blue" onClick={handleSubmit}>
+            <Button 
+              colorScheme="blue" 
+              onClick={handleSubmit}
+              isLoading={loading}
+              loadingText="Allocating..."
+            >
               Allocate Task
             </Button>
           </Stack>

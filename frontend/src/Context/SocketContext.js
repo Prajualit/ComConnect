@@ -1,6 +1,6 @@
-const SOCKET_URL = process.env.REACT_APP_IN_DOCKER 
-  ? 'http://backend:5000'
-  : 'http://localhost:5000';
+import { API_URL } from "../config/api.config";
+
+const SOCKET_URL = API_URL.replace('/api', '');
 
 const socket = io(SOCKET_URL, {
   transports: ['websocket', 'polling'],

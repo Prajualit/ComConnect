@@ -17,6 +17,7 @@ import axios from "axios";
 import { ChatState } from "../../Context/ChatProvider";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import { joinspace } from "../../utils/media/media";
+import { API_URL } from "../../config/api.config";
 
 const JoinWorkspaceModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -44,7 +45,7 @@ const JoinWorkspaceModal = ({ children }) => {
             return;
           }
 
-          const url = `/api/workspace/${workspaceId}/groups`;
+          const url = `${API_URL}/workspace/${workspaceId}/groups`;
           const { data } = await axios.get(url, config);
           setGroups(data);
         } catch (error) {
@@ -77,7 +78,7 @@ const JoinWorkspaceModal = ({ children }) => {
       }
 
       const { data } = await axios.post(
-        "/api/workspace/join",
+        `${API_URL}/workspace/join`,
         { workspaceId, groupId },
         config
       );

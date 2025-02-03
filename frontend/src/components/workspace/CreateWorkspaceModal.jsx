@@ -5,6 +5,7 @@ import { useWorkspace } from "../../Context/WorkspaceProvider";
 import { useNavigate } from "react-router-dom";
 import { workspace } from "../../utils/media/media";
 import "./workspace.css";
+import { API_URL } from "../../config/api.config";
 
 const CreateWorkspaceModal = ({ onClose }) => {
   const [step, setStep] = useState(1);
@@ -23,7 +24,7 @@ const CreateWorkspaceModal = ({ onClose }) => {
   const createWorkspace = async () => {
     try {
       const response = await axios.post(
-        "/api/workspace",
+        `${API_URL}/workspace`,
         { name: workspaceName, roles },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -38,7 +39,7 @@ const CreateWorkspaceModal = ({ onClose }) => {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        `/api/workspace/${workspaceId}/roles`,
+        `${API_URL}/workspace/${workspaceId}/roles`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

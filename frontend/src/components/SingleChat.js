@@ -30,6 +30,7 @@ import { ChatState } from "../Context/ChatProvider";
 import TaskDialog from "./task_allocator/TaskDialog";
 import { useDisclosure } from "@chakra-ui/react";
 import SideDrawer from "./miscellaneous/SideDrawer";
+import { API_URL } from "../config/api.config";
 const ENDPOINT = "";
 var socket, selectedChatCompare;
 
@@ -67,7 +68,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
 
       const { data } = await axios.get(
-        `/api/message/${selectedChat._id}`,
+        `${API_URL}/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
@@ -76,7 +77,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Messages",
         status: "error",
         duration: 5000,
@@ -90,7 +91,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   console.log(token);
 
   const sendMessage = async (event) => {
-    if ((!event || event.key === "Enter"|| event.type === "click") && newMessage) {
+    if (event.key === "Enter" && newMessage) {
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -99,20 +100,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             Authorization: `Bearer ${user.token}`,
           },
         };
-        setNewMessage("");
         const { data } = await axios.post(
-          "/api/message",
+          `${API_URL}/message`,
           {
             content: newMessage,
-            chatId: selectedChat,
+            chatId: selectedChat._id,
           },
           config
         );
         socket.emit("new message", data);
         setMessages([...messages, data]);
+        setNewMessage("");
       } catch (error) {
         toast({
-          title: "Error Occured!",
+          title: "Error Occurred!",
           description: "Failed to send the Message",
           status: "error",
           duration: 5000,

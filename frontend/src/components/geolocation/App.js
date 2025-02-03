@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import MapComponent from './Map';
 import { indexedDBService } from '../../services/indexedDBService';
 import { ChatState } from '../../Context/ChatProvider';
+import { API_URL } from "../../config/api.config";
 
 const Geo = () => {
     const { user } = ChatState();
@@ -71,7 +72,9 @@ const Geo = () => {
     const initializeSocket = useCallback(() => {
         if (!user?.token) return;
 
-        const socket = io(process.env.REACT_APP_API_URL, {
+        const SOCKET_URL = API_URL.replace('/api', '');
+        
+        const socket = io(SOCKET_URL, {
             reconnection: true,
             reconnectionAttempts: maxReconnectAttempts,
             reconnectionDelay: 1000,

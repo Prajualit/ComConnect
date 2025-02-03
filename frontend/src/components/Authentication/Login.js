@@ -12,6 +12,10 @@ import Text_Box from "../Elements/text_box";
 import RememberMe from "./remember";
 import GoogleLoginButton from "./loginwithgoogle";
 import Signup from "./Signup"
+import { API_URL } from "../../config/api.config";
+
+console.log("Current API URL:", API_URL);
+
 const Login = () => {
   const [show, setShow] = useState(false);
   const handleClick = (e) => {
@@ -33,9 +37,10 @@ const Login = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
     if (!email || !password) {
       toast({
-        title: "Please Fill all the Feilds",
+        title: "Please Fill all the Fields",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -46,17 +51,21 @@ const Login = () => {
     }
 
     try {
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-        },
-      };
+      console.log('Attempting login with URL:', `${API_URL}/user/login`);
 
-      const { data } = await axios.post(
-        "/api/user/login",
-        { email, password },
-        config
-      );
+      const { data } = await axios({
+        method: 'post',
+        url: `${API_URL}/user/login`,
+        data: { email, password },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        withCredentials: false, // Important for CORS
+        timeout: 50000
+      });
+
+      console.log('Login response:', data);
 
       toast({
         title: "Login Successful",
@@ -70,15 +79,36 @@ const Login = () => {
       setLoading(false);
       navigate("/workspace");
     } catch (error) {
+      console.error('Login Error Details:', {
+        url: `${API_URL}/user/login`,
+        error: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+        code: error.code
+      });
+
+      let errorMessage;
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = "Connection timeout - Server might be busy, please try again";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.code === 'ERR_NETWORK') {
+        errorMessage = "Network error - Please check your connection";
+      } else {
+        errorMessage = "Unable to connect to server - Please try again later";
+      }
+
       toast({
-        title: "Error Occured!",
-        description: error.response.data.message,
+        title: "Login Failed",
+        description: errorMessage,
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom",
       });
       setLoading(false);
+    } finally {
+      setLoading(false); // Ensure loading is always turned off
     }
   };
 
@@ -129,7 +159,7 @@ const Login = () => {
           </InputGroup>
           <Text_Box  
           fontSize={["10px"]}
-          children="By signing up, you are creating a COMCONNECT account, and you agree to COMCONNECT’s Term of Use and Privacy Policy." />
+          children="By signing up, you are creating a COMCONNECT account, and you agree to COMCONNECT's Term of Use and Privacy Policy." />
           <RememberMe />
           <Button
             colorScheme="#FBB03B;"
@@ -158,7 +188,7 @@ const Login = () => {
         </FormControl>
         {/* <Box  display="flex" alignItems="center" justifyContent="center">
           <Text_Box fontSize="sm" color="gray.600">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Button
               variant="link"
               colorScheme="blue"

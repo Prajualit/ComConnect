@@ -9,6 +9,7 @@ import ChatLoading from "./ChatLoading";
 import GroupChatModal from "./miscellaneous/GroupChatModal";
 import { getSender } from "../config/ChatLogics";
 import "./chatbox.css";
+import { API_URL } from "../config/api.config";
 
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();

@@ -1,9 +1,5 @@
 import axios from "axios";
-
-const API_URL = process.env.REACT_APP_IN_DOCKER 
-  ? 'http://backend:5000/api'
-  : 'http://localhost:5000/api';
-
+import { API_URL } from "../config/api.config";
 
 export const fetchChats = async (token, workspaceId) => {
   const config = {

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../config/api.config";
 
 const WorkspaceContext = createContext();
 
@@ -26,7 +27,7 @@ const WorkspaceProvider = ({ children }) => {
       if (user?.token) {
         try {
           const response = await axios.get(
-            "/api/workspace/user",
+            `${API_URL}/workspace/user`,
             {
               headers: {
                 Authorization: `Bearer ${user.token}`,

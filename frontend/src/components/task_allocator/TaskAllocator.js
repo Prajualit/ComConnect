@@ -14,6 +14,7 @@ import {
 import StatusPanel from "./StatusPanel";
 import { ChatState } from "../../Context/ChatProvider";
 import AllocatedTasks from "./AllocatedTasks";
+import { API_URL } from "../../config/api.config";
 
 const TaskAllocator = ({ workspaceId }) => {
   const { user } = ChatState();
@@ -35,7 +36,7 @@ const TaskAllocator = ({ workspaceId }) => {
   const fetchTasks = useCallback(async () => {
     try {
       const { data } = await axios.get(
-        `/api/tasks/my-tasks?workspaceId=${workspaceId}`,
+        `${API_URL}/tasks/my-tasks?workspaceId=${workspaceId}`,
         config
       );
       setTasks(data);
@@ -59,7 +60,7 @@ const TaskAllocator = ({ workspaceId }) => {
   const allocateTask = async () => {
     try {
       const { data } = await axios.post(
-        "/api/tasks/allocate",
+        `${API_URL}/tasks/allocate`,
         { heading, description, email, workspaceId, attachments },
         config
       );
