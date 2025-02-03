@@ -1,11 +1,19 @@
-// Define URLs
-const PROD_API_URL = 'https://aws-comconnect-v2-backend.onrender.com/api';
-const LOCAL_API_URL = 'http://localhost:5000/api';
+// Define URLs from environment variables
+const PROD_API_URL = "https://aws-comconnect-v2-backend.onrender.com/api";
+const LOCAL_API_URL = "http://localhost:5000/api";
 
-// Determine which URL to use
+// Add this debug log at the very start
+console.log('Environment Variables:', {
+    PROD_API_URL,
+    LOCAL_API_URL,
+    NODE_ENV: process.env.NODE_ENV,
+    USE_PROD_API: process.env.REACT_APP_USE_PROD_API
+});
+
+// Determine which URL to use based on environment
 let API_URL = LOCAL_API_URL;
 
-if (process.env.REACT_APP_USE_PROD_API === 'true') {
+if (process.env.NODE_ENV === 'production' || process.env.REACT_APP_USE_PROD_API === 'true') {
     API_URL = PROD_API_URL;
     console.log('Using Production API:', PROD_API_URL);
 } else {
