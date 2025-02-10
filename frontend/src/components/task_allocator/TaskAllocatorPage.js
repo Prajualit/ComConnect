@@ -7,21 +7,26 @@ const TaskAllocatorPage = () => {
   const { workspaceId } = useParams(); // Get workspaceId from URL
 
   return (
-    <Box
-      position="relative"
-      zIndex="1000"
-      overflowY="scroll"          // Allows scrolling
-      maxHeight="100vh"          // Ensure it doesn't exceed viewport height
-      css={{
-        '&::-webkit-scrollbar': {
-          display: 'none'        // Hide scrollbar for WebKit browsers
-        },
-        scrollbarWidth: 'none',   // Hide scrollbar for Firefox
-        msOverflowStyle: 'none'   // Hide scrollbar for IE and Edge
-      }}
-    >
-      <TaskAllocator workspaceId={workspaceId} />
-    </Box>
+    <div style={{ height: "100%", width: "100%" }}>
+      <Box
+        position="relative"
+        zIndex="1000"
+        w="100%"
+        minHeight="100vh"
+        bg="#04539d" // Corrected background color prop
+        color="orange"
+        css={{
+          "&::-webkit-scrollbar": {
+            display: "none", // Hide scrollbar for WebKit browsers
+          },
+          scrollbarWidth: "none", // Hide scrollbar for Firefox
+          msOverflowStyle: "none", // Hide scrollbar for IE and Edge
+        }}
+      >
+        <TaskAllocator workspaceId={workspaceId} />
+      </Box>
+    </div>
+    
   );
 };
 
