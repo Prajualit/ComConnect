@@ -1,5 +1,5 @@
 // Define URLs from environment variables
-const PROD_API_URL = "https://aws-comconnect-v2-backend.onrender.com/api";
+const PROD_API_URL = "https://comconnect-backend.onrender.com/api";
 const LOCAL_API_URL = "http://localhost:5000/api";
 
 // Add this debug log at the very start
