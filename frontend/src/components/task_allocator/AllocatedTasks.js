@@ -73,7 +73,7 @@ const AllocatedTasks = () => {
 
   return (
     <Box p={5}>
-      <Text fontSize="2xl" mb={4} fontWeight="bold">
+      <Text fontSize="4xl" mb={4} fontWeight="500" fontFamily="head" textColor="#fff">
         Tasks I've Allocated
       </Text>
       {tasks.length === 0 ? (

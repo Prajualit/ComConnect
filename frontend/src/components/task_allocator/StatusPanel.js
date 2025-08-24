@@ -13,26 +13,32 @@ const StatusPanel = ({ title, tasks, fetchTasks, config, onTaskClick }) => {
   return (
     <Box
       w="100%"
-      maxW="400px"
       p={4}
       borderWidth="1px"
       borderRadius="md"
-      bg="white"
+      bg="#21364a"
+      border="none"
       boxShadow="md"
     >
-      <Text fontSize="2xl" mb={4}>
+      <Text fontSize="2xl" mb={4} textColor="#fff">
         {title}
       </Text>
-      <VStack spacing={4}>
-        {tasks.map((task) => (
-          <TaskCard
-            key={task._id}
-            task={task}
-            fetchTasks={fetchTasks}
-            config={config}
-            onClick={() => onTaskClick(task)}
-          />
-        ))}
+      <VStack spacing={4} align="start">
+        {tasks.length === 0 ? (
+          <Text textColor="#fff" fontSize="lg" fontFamily="content">
+            No tasks
+          </Text>
+        ) : (
+          tasks.map((task) => (
+            <TaskCard
+              key={task._id}
+              task={task}
+              fetchTasks={fetchTasks}
+              config={config}
+              onClick={() => onTaskClick(task)}
+            />
+          ))
+        )}
       </VStack>
     </Box>
   );

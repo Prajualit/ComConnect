@@ -16,6 +16,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { Flex } from "@chakra-ui/layout";
 
 const TaskCard = ({ task, fetchTasks, config, onClick }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -49,21 +50,32 @@ const TaskCard = ({ task, fetchTasks, config, onClick }) => {
   };
 
   return (
-    <Box p={4} shadow="md" borderWidth="1px" cursor="pointer" onClick={onOpen}>
-      <Text fontWeight="bold">{task.heading}</Text>
-      <Text>{task.description}</Text>
-      <Text>Assignee: {task.assignee.email}</Text>
-      <Text>Created By: {task.createdBy.email}</Text>
+    <Box p={4} shadow="md" border="none" bg="#21364a" cursor="pointer" borderRadius="md">
+      <Flex  justifyContent="space-evenly" onClick={onOpen}>
+        <Box>
+          <Text fontFamily="content" textColor="#fff">{task.heading}</Text>
+          <Text fontFamily="content" textColor="#fff">{task.description}</Text>
+        </Box>
+        <Text fontFamily="content" textColor="#fff">Assignee: {task.assignee.email}</Text>
+        <Text fontFamily="content" textColor="#fff">Created By: {task.createdBy.email}</Text>
+      </Flex>
+      
       <FormControl mt={4}>
         <Select
           value={newStatus}
           onChange={(e) => setNewStatus(e.target.value)}
+          border="none"
+          bg="#234b75ff"
+          color="#fff"
+          textColor="#fff"
+          _focus={{bg: "#25374bff"}}
+          _hover={{ bg: "#232d38ff", color: "#fff" }}
         >
-          <option value="to-do">To Do</option>
-          <option value="in-progress">In Progress</option>
-          <option value="done">Done</option>
+          <option value="to-do" style={{ background: "#234b75ff", borderRadius: "50%", color: "#fff" }}>To Do</option>
+          <option value="in-progress" style={{ background: "#234b75ff", borderRadius: "50%", color: "#fff" }}>In Progress</option>
+          <option value="done" style={{ background: "#234b75ff", borderRadius: "50%", color: "#fff" }}>Done</option>
         </Select>
-        <Button mt={2} colorScheme="blue" onClick={updateTaskStatus}>
+        <Button mt={2} bg="#05549e" textColor="#fff" _hover={{ bg: "#0c77dbff" }} onClick={updateTaskStatus}>
           Update Status
         </Button>
       </FormControl>
@@ -71,29 +83,31 @@ const TaskCard = ({ task, fetchTasks, config, onClick }) => {
       {/* Modal for task details */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{task.heading}</ModalHeader>
-          <ModalCloseButton />
+        <ModalContent bg="#0f1924" justifyContent="center">
+          <ModalHeader fontFamily="head" textColor="#fff">{task.heading}</ModalHeader>
+          <ModalCloseButton color="#fff" />
           <ModalBody>
-            <Text fontWeight="bold">Description:</Text>
-            <Text mb={4}>{task.description}</Text>
-            <Text fontWeight="bold">Assignee:</Text>
-            <Text mb={4}>{task.assignee.email}</Text>
-            <Text fontWeight="bold">Created By:</Text>
-            <Text mb={4}>{task.createdBy.email}</Text>
+            <Text fontWeight="bold" fontFamily="subhead" textColor="#fff">Description:</Text>
+            <Text mb={4} fontFamily="content" textColor="#fff">{task.description}</Text>
+            <Text fontWeight="bold" fontFamily="subhead" textColor="#fff">Assignee:</Text>
+            <Text mb={4} fontFamily="content" textColor="#fff">{task.assignee.email}</Text>
+            <Text fontWeight="bold" fontFamily="subhead" textColor="#fff">Created By:</Text>
+            <Text mb={4} fontFamily="content" textColor="#fff">{task.createdBy.email}</Text>
 
             <Textarea
               mt={4}
               placeholder="Add a comment"
               value={comment}
+              border="none"
+              bg="#21364a"
               onChange={(e) => setComment(e.target.value)}
             />
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={addComment}>
+            <Button bg="#05549e" textColor="#fff"  _hover={{ bg: "#0c77dbff" }} mr={3} onClick={addComment}>
               Add Comment
             </Button>
-            <Button variant="outline" onClick={onClose}>
+            <Button bg="#700303ff" color="#fff" _hover={{ bg: "#9b1c1cff" }} onClick={onClose}>
               Close
             </Button>
           </ModalFooter>

@@ -7,9 +7,15 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Text,
+  Tabs,
+  TabPanels,
+  TabPanel,
+  TabList,
   useToast,
   Flex,
   Stack,
+  Tab,
 } from "@chakra-ui/react";
 import StatusPanel from "./StatusPanel";
 import { ChatState } from "../../Context/ChatProvider";
@@ -93,101 +99,126 @@ const TaskAllocator = ({ workspaceId }) => {
   };
 
   return (
-    <Box p={5} maxWidth="1200px" mx="auto">
-      <Stack 
-        direction={{ base: "column", md: "row" }} // Column on small screens, row on larger screens
-        spacing={{ base: 8, md: 12 }} 
-        align="center"
+    <Box p={5} width="90%" minHeight="100vh" mx="auto">
+      <Flex
+        direction={["column", "column", "row", "row"]}
+        alignItems="center"
+        flexWrap="wrap"
+        justifyContent="space-evenly"
+        minHeight="100vh"
+        gap={[5, 5, 5,10]}
       >
         {/* Left Side - Task Input Form */}
-        <Stack spacing={4} w={{ base: "90%", md: "50%" }} mb={0} textAlign="center">
-          <FormControl id="heading" isRequired>
-            <FormLabel>Heading</FormLabel>
-            <Input
-              value={heading}
-              onChange={(e) => setHeading(e.target.value)}
-              w="100%"
-            />
-          </FormControl>
-          <FormControl id="description" isRequired>
-            <FormLabel>Description</FormLabel>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              w="100%"
-              resize="vertical"
-            />
-          </FormControl>
-          <FormControl id="email" isRequired>
-            <FormLabel>Assignee Email</FormLabel>
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              w="100%"
-            />
-          </FormControl>
-          <FormControl id="attachments">
-            <FormLabel>Attachments</FormLabel>
-            <Input
-              value={attachments}
-              onChange={(e) => setAttachments(e.target.value.split(","))}
-              w="100%"
-            />
-          </FormControl>
-          <Button 
-            colorScheme="blue" 
-            size="md" 
-            width={{ base: "80%", md: "50%" }} // Wider button on mobile, controlled on larger screens
-            alignSelf="center"
-            mb={8}  
-            onClick={allocateTask}
-          >
-            Allocate Task
-          </Button>
-        </Stack>
+        <Box w={["100%", "100%", "40%", "28%"]}>
+          <Stack spacing={4} mb={0} textAlign="center" alignContent="center" justifyContent="center">
+            <Text fontFamily="head" fontSize="4xl" textAlign="left" textColor="#fff" fontWeight="500">Allocate new Task</Text>
+            <FormControl id="heading" isRequired>
+              <FormLabel fontFamily="subhead" textColor="#fff">Heading</FormLabel>
+              <Input
+                value={heading}
+                onChange={(e) => setHeading(e.target.value)}
+                w="100%"
+                bg="#21364a"
+                borderColor="transparent"
+                focusBorderColor="transparent"
+              />
+            </FormControl>
+            <FormControl id="description" isRequired>
+              <FormLabel fontFamily="subhead" textColor="#fff">Description</FormLabel>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                w="100%"
+                resize="vertical"
+                bg="#21364a"
+                borderColor="transparent"
+              />
+            </FormControl>
+            <FormControl id="email" isRequired>
+              <FormLabel fontFamily="subhead" textColor="#fff">Assignee Email</FormLabel>
+              <Input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                w="100%"
+                bg="#21364a"
+                borderColor="transparent"
+              />
+            </FormControl>
+            <FormControl id="attachments">
+              <FormLabel fontFamily="subhead" textColor="#fff">Attachments</FormLabel>
+              <Input
+                value={attachments}
+                onChange={(e) => setAttachments(e.target.value.split(","))}
+                w="100%"
+                bg="#21364a"
+                borderColor="transparent"
+              />
+            </FormControl>
+            <Button 
+              colorScheme="blue" 
+              size="md" 
+              width="100%, 100%, 47%, 50%" // Wider button on mobile, controlled on larger screens
+              alignSelf="flex-end"
+              mb={8}  
+              onClick={allocateTask}
+              whiteSpace="normal"
+              wordBreak="break-word"
+              bg="#05549e"
+            >
+              Allocate Task
+            </Button>
+          </Stack>
+        </Box>
 
         {/* Right Side - Status Panels */}
-        <Flex 
-          wrap="wrap" 
-          direction="column" 
-          w={{ base: "100%", md: "50%" }} 
-          align="center"
-          gap={6}
-        >
-          <Box flex="1" minWidth={{ base: "80%", md: "40vh" }}>
-            <StatusPanel
-              title="To Do"
-              tasks={tasks.filter((task) => task.status === "to-do")}
-              fetchTasks={fetchTasks}
-              config={config}
-              onTaskClick={handleTaskClick}
-            />
-          </Box>
-          <Box flex="1" minWidth={{ base: "80%", md: "40vh" }}>
-            <StatusPanel
-              title="In Progress"
-              tasks={tasks.filter((task) => task.status === "in-progress")}
-              fetchTasks={fetchTasks}
-              config={config}
-              onTaskClick={handleTaskClick}
-            />
-          </Box>
-          <Box flex="1" minWidth={{ base: "80%", md: "40vh" }}>
-            <StatusPanel
-              title="Done"
-              tasks={tasks.filter((task) => task.status === "done")}
-              fetchTasks={fetchTasks}
-              config={config}
-              onTaskClick={handleTaskClick}
-            />
-          </Box>
-        </Flex>
-      </Stack>
+        <Box w={["100%", "100%", "55%", "60%"]} ml={[0, 0, 0, 0]}>
+          <Flex direction="column" whiteSpace="normal" wordBreak="break-word" gap={6}>
+            <Text fontFamily="head" fontSize="4xl" textAlign="left" textColor="#fff" fontWeight="500">Task Status</Text>
+            <Tabs variant="soft-rounded" colorScheme="blue"  mt={4}>
+              <TabList>
+                <Tab fontFamily="subhead" textColor="#fff">To Do</Tab>
+                <Tab fontFamily="subhead" textColor="#fff">In Progress</Tab>
+                <Tab fontFamily="subhead" textColor="#fff">Done</Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel>
+                  <StatusPanel
+                    title="To Do"
+                    tasks={tasks.filter((task) => task.status === "to-do")}
+                    fetchTasks={fetchTasks}
+                    config={config}
+                    onTaskClick={handleTaskClick}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <StatusPanel
+                    title="In Progress"
+                    tasks={tasks.filter((task) => task.status === "in-progress")}
+                    fetchTasks={fetchTasks}
+                    config={config}
+                    onTaskClick={handleTaskClick}
+                  />
+                </TabPanel>
+                <TabPanel>
+                  <StatusPanel
+                    title="Done"
+                    tasks={tasks.filter((task) => task.status === "done")}
+                    fetchTasks={fetchTasks}
+                    config={config}
+                    onTaskClick={handleTaskClick}
+                  />
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+            {/* Allocated Tasks Section */}
+            <Box my={8}>
+              <AllocatedTasks />
+            </Box>
+          </Flex>
+        </Box>
+      </Flex>
 
-      {/* Allocated Tasks Section */}
-      <Box mt={8}>
-        <AllocatedTasks />
-      </Box>
+      
     </Box>
   );
 };

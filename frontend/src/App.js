@@ -10,6 +10,7 @@ import TaskAllocatorPage from "./components/task_allocator/TaskAllocatorPage";
 import MyTasks from "./components/task_allocator/MyTasks";
 import Signup from "./components/Authentication/Signup";
 import Geo from "./components/geolocation/App";
+import theme from "./theme";
 
 const App = () => {
   useEffect(() => {
@@ -29,7 +30,7 @@ const App = () => {
 
   return (
     <Router>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <ChatProvider>
           <WorkspaceProvider>
             <div className="container">
