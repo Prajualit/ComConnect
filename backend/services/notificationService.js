@@ -10,6 +10,8 @@ console.log('Starting NotificationService with config:', {
   kafkaBroker: process.env.KAFKA_BROKER
 });
 
+console.log("debugging");
+
 // Redis Configuration
 const redisConfig = {
   host: process.env.REDIS_HOST || 'ec2-3-6-113-80.ap-south-1.compute.amazonaws.com',
