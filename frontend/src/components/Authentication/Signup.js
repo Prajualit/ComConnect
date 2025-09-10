@@ -170,6 +170,8 @@ const Signup = () => {
                 <FormLabel mb={0} mt={3} fontFamily="subhead" textColor="lgrey">Name</FormLabel>
                 <Input
                   fontFamily="content"
+                  bg="#21364a"
+                  border="none"
                   placeholder="Enter Your Name"
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -179,6 +181,8 @@ const Signup = () => {
                 <Input
                   fontFamily="content"
                   type="email"
+                  bg="#21364a"
+                  border="none"
                   placeholder="Enter Your Email Address"
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -188,6 +192,8 @@ const Signup = () => {
                 <InputGroup size="md">
                   <Input
                     fontFamily="content"
+                    bg="#21364a"
+                    border="none"
                     type={show ? "text" : "password"}
                     placeholder="Enter Password"
                     onChange={(e) => setPassword(e.target.value)}
@@ -204,6 +210,8 @@ const Signup = () => {
                 <InputGroup size="md">
                   <Input
                     fontFamily="content"
+                    bg="#21364a"
+                    border="none"
                     type={show ? "text" : "password"}
                     placeholder="Confirm password"
                     onChange={(e) => setConfirmpassword(e.target.value)}

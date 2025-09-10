@@ -139,15 +139,16 @@ function SideDrawer() {
  
 
   return (
-    <>
+    <Box bg="transparent">
       <Box
         d="flex"
         justifyContent="space-between"
         alignItems="center"
-        bg="white"
+        bg="transparent"
         w="100%"
         p="5px 10px 5px 10px"
-        borderWidth="5px"
+        border="none"
+        textColor="white"
       >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
@@ -187,11 +188,15 @@ function SideDrawer() {
               </Box>
             </MenuButton>
             <MenuList>
-              <ProfileModal user={user}>
-                <MenuItem>My Profile</MenuItem>{" "}
-              </ProfileModal>
-              <MenuDivider />
-              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+              {notification.length === 0 ? (
+                <MenuItem>No new notifications</MenuItem>
+              ) : (
+                notification.map((notif, idx) => (
+                  <MenuItem key={idx}>
+                    {notif.message || "New notification"}
+                  </MenuItem>
+                ))
+              )}
             </MenuList>
           </Menu> 
         </div>
@@ -226,7 +231,7 @@ function SideDrawer() {
           </DrawerBody>
         </DrawerContent>
       </Drawer>
-    </>
+    </Box>
   );
 }
 

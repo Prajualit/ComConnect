@@ -1,20 +1,20 @@
 import { FormControl } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
-import { Box, Text  } from "@chakra-ui/layout";
+import { Box, Text } from "@chakra-ui/layout";
 import "./styles.css";
 import { Avatar } from "@chakra-ui/avatar";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { 
-  Button, 
-  flexbox, 
-  IconButton, 
-  Spinner, 
+import {
+  Button,
+  flexbox,
+  IconButton,
+  Spinner,
   useToast,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
-  MenuDivider
+  MenuDivider,
 } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState } from "react";
@@ -194,155 +194,167 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <>
-    <SideDrawer />
+    <Box>
+      <SideDrawer />
       {selectedChat ? (
         <>
-        <Box
-        d="flex"
-        flexDir="column"
-        height="95%">
-        <Box
-        backgroundColor={"black"}
-        display="flex"
-  flexDirection="row"
-  alignItems={"center"}
-  width="100%"
-        >
-          <Text
-            fontSize={{ base: "28px", md: "30px" }}
-            pb={3}
-            px={3}
-            fontFamily="Work sans"
-            d="flex"
-            w="100%"
-            justifyContent="space-between"
-            alignItems="center"
-            color={"whitesmoke"}
-          >
-            <IconButton
-              d={{ base: "flex", md: "none" }}
-              mx={"1.5"}
-              icon={<ArrowBackIcon />}
-              onClick={() => setSelectedChat("")}
-            />
-            {messages &&
-              (!selectedChat.isGroupChat ? (
-                <>
-                  {getSender(user, selectedChat.users)}
-                  <ProfileModal
-                    user={getSenderFull(user, selectedChat.users)}
-                  />
-                </>
-              ) : (
-                <>
-                  {selectedChat.chatName.toUpperCase()}
-                  <UpdateGroupChatModal
-                    fetchMessages={fetchMessages}
-                    fetchAgain={fetchAgain}
-                    setFetchAgain={setFetchAgain}
-                  />
-                </>
-              ))}
-          </Text>
-          <div>
-          <Menu>
-            <MenuButton as={Button} mx={"5px"} bg="white" rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size="sm"
-                cursor="pointer"
-                name={user.name}
-                src={user.pic}
-              />
-            </MenuButton>
-            <MenuList>
-              <ProfileModal user={user}>
-                <MenuItem>My Profile</MenuItem>{" "}
-              </ProfileModal>
-              <MenuDivider />
-              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
-          </div>
-          </Box>
-          <Box
-            d="flex"
-            flexDir="column"
-            justifyContent="flex-end"
-            p={3}
-            mb={3}
-            bg="white"
-            w="100%"
-            h="100%" // Adjust height to fit the viewport
-            overflow="hidden"
-            position="relative"
-          >
-            {loading ? (
-              <Spinner
-                size="xl"
-                w={20}
-                h={20}
-                alignSelf="center"
-                margin="auto"
-              />
-            ) : (
-              <div className="messages-container">
-                <div className="messages">
-                  <ScrollableChat messages={messages} />
-                </div>
-              </div>
-            )}
-
-            <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
-              position="absolute"
-              bottom="0"
+          <Box d="flex" flexDir="column" bg="#000" w="100%" height="100vh">
+            <Box
+              bg="transparent"
+              display="flex"
+              flexDirection="row"
+              alignItems={"center"}
               width="100%"
-              bg="black"
-              p={3}
             >
-              {istyping ? <div>typing...</div> : <></>}
-              <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-    <Input
-      width="90%" // Adjust width to accommodate the button
-      variant="filled"
-      bg="black"
-      placeholder="Type Here"
-      value={newMessage}
-      onChange={typingHandler}
-      borderColor="grey"
-      color={"white"}
-      className="enteramsg"
-    />
-    <Button ml={2} colorScheme="blue"  onClick={(e) => {
-        e.preventDefault(); 
-        sendMessage();
-      }}>
-      Send
-    </Button>
-  </div>
-            </FormControl>
-          </Box>
+              <Text
+                fontSize={{ base: "28px", md: "30px" }}
+                pb={3}
+                px={3}
+                fontFamily="Work sans"
+                d="flex"
+                w="100%"
+                justifyContent="space-between"
+                alignItems="center"
+                color="#fff"
+              >
+                <IconButton
+                  d={{ base: "flex", md: "none" }}
+                  mx={"1.5"}
+                  icon={<ArrowBackIcon />}
+                  onClick={() => setSelectedChat("")}
+                />
+                {messages &&
+                  (!selectedChat.isGroupChat ? (
+                    <>
+                      {getSender(user, selectedChat.users)}
+                      <ProfileModal
+                        user={getSenderFull(user, selectedChat.users)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {selectedChat.chatName.toUpperCase()}
+                      <UpdateGroupChatModal
+                        fetchMessages={fetchMessages}
+                        fetchAgain={fetchAgain}
+                        setFetchAgain={setFetchAgain}
+                      />
+                    </>
+                  ))}
+              </Text>
+              <div>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    mx={"5px"}
+                    bg="white"
+                    rightIcon={<ChevronDownIcon />}
+                  >
+                    <Avatar
+                      size="sm"
+                      cursor="pointer"
+                      name={user.name}
+                      src={user.pic}
+                    />
+                  </MenuButton>
+                  <MenuList>
+                    <ProfileModal user={user}>
+                      <MenuItem>My Profile</MenuItem>{" "}
+                    </ProfileModal>
+                    <MenuDivider />
+                    <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+                  </MenuList>
+                </Menu>
+              </div>
+            </Box>
+            <Box
+              d="flex"
+              flexDir="column"
+              // justifyContent="flex-end"
+              p={3}
+              mb={3}
+              bg="transparent"
+              w="100%"
+              h="90%" // Adjust height to fit the viewport
+              position="relative"
+            >
+              {loading ? (
+                <Spinner
+                  size="xl"
+                  w={20}
+                  h={20}
+                  alignSelf="center"
+                  margin="auto"
+                />
+              ) : (
+                <div className="messages-container" pb={20}>
+                  <div className="messages">
+                    <ScrollableChat messages={messages} />
+                  </div>
+                </div>
+              )}
+
+              <FormControl
+                onKeyDown={sendMessage}
+                id="first-name"
+                isRequired
+                mt={3}
+                position="sticky"
+                bottom="0"
+                width="100%"
+                bg="transparent"
+                p={3}
+              >
+                {istyping ? <div>typing...</div> : <></>}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Input
+                    width="90%" // Adjust width to accommodate the button
+                    variant="filled"
+                    bg="#21364a"
+                    placeholder="Type Here"
+                    value={newMessage}
+                    onChange={typingHandler}
+                    borderColor="grey"
+                    color={"white"}
+                    className="enteramsg"
+                  />
+                  <Button
+                    ml={2}
+                    bg="#05549e"
+                    color="#fff"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      sendMessage();
+                    }}
+                  >
+                    Send
+                  </Button>
+                </div>
+              </FormControl>
+            </Box>
           </Box>
         </>
       ) : (
         // to get socket.io on same page
-        <Box d="flex" alignItems="center" justifyContent="center" h="100%">
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
+        <Box d="flex" alignItems="center" bg="#0f1924" justifyContent="center" h="100%">
+          <Text fontSize="3xl" pb={3} textColor="#fff" fontFamily="Work sans">
             Click on a user to start chatting
           </Text>
         </Box>
       )}
-      <TaskDialog 
-        isOpen={isOpen} 
-        onClose={onClose} 
+      <TaskDialog
+        isOpen={isOpen}
+        onClose={onClose}
         workspaceId={selectedChat?.workspace}
         selectedChat={selectedChat}
       />
-    </>
+    </Box>
   );
 };
 
