@@ -137,21 +137,27 @@ const GroupChatModal = ({ children }) => {
       <span onClick={onOpen}>{children}</span>
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent borderRadius="lg">
           <ModalHeader
             fontSize="35px"
-            fontFamily="Work sans"
+            fontFamily="head"
             d="flex"
+            bg="#0f1924"
+            
+            color="#fff"
             justifyContent="center"
           >
             Create Group Chat
           </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody d="flex" flexDir="column" alignItems="center">
+          <ModalCloseButton color="#fff"/>
+          <ModalBody d="flex" bg="#0f1924" flexDir="column" alignItems="center" >
             <FormControl>
               <Input
                 placeholder="Chat Name"
                 mb={3}
+                color="#fff"
+                bg="#21364a"
+                border="none"
                 onChange={(e) => setGroupChatName(e.target.value)}
               />
             </FormControl>
@@ -159,10 +165,13 @@ const GroupChatModal = ({ children }) => {
               <Input
                 placeholder="Add Users eg: John, Piyush, Jane"
                 mb={1}
+                color="#fff"
+                bg="#21364a"
+                border="none"
                 onChange={(e) => handleSearch(e.target.value)}
               />
             </FormControl>
-            <Box w="100%" d="flex" flexWrap="wrap">
+            <Box w="100%" d="flex" bg="#0f1924" flexWrap="wrap">
               {selectedUsers.map((u) => (
                 <UserBadgeItem
                   key={u._id}
@@ -185,8 +194,8 @@ const GroupChatModal = ({ children }) => {
                 ))
             )}
           </ModalBody>
-          <ModalFooter>
-            <Button onClick={handleSubmit} colorScheme="blue">
+          <ModalFooter bg="#0f1924">
+            <Button onClick={handleSubmit} bg="#05549e" color="#fff">
               Create Chat
             </Button>
           </ModalFooter>

@@ -120,6 +120,7 @@ const TaskAllocator = ({ workspaceId }) => {
                 w="100%"
                 bg="#21364a"
                 borderColor="transparent"
+                textColor="#fff"
                 focusBorderColor="transparent"
               />
             </FormControl>
@@ -131,6 +132,7 @@ const TaskAllocator = ({ workspaceId }) => {
                 w="100%"
                 resize="vertical"
                 bg="#21364a"
+                textColor="#fff"
                 borderColor="transparent"
               />
             </FormControl>
@@ -141,6 +143,7 @@ const TaskAllocator = ({ workspaceId }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 w="100%"
                 bg="#21364a"
+                textColor="#fff"
                 borderColor="transparent"
               />
             </FormControl>
@@ -151,6 +154,7 @@ const TaskAllocator = ({ workspaceId }) => {
                 onChange={(e) => setAttachments(e.target.value.split(","))}
                 w="100%"
                 bg="#21364a"
+                textColor="#fff"
                 borderColor="transparent"
               />
             </FormControl>

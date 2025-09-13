@@ -1,4 +1,3 @@
-
 .chats-sec {
   display: flex;
   flex-direction: column;
@@ -9,29 +8,23 @@
 .chat-main {
   display: flex;
   height: 100%;
-  background-color:#8CC7FF29 !important;
+  background-color:#8CC7FF29 !important;  
 }
 
 .sidebar {
-
-
-  background: #338ada !important;
-  overflow: hidden;
-  height: 100%;
-  width: 40%;
+  
+  overflow-y: auto;
+  
   transition: width 0.3s ease;
-  padding: 10px;
 }
 
 .chatting {
-  
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  background-color: white !important;
   padding: 10px;
   transition: width 0.3s ease;
-  width: 60%;
-  background-color: #8CC7FF29  !important;
 }
 
 .task-allocator {
@@ -130,23 +123,22 @@
 
 .sidebar {
   overflow-y: auto;
-
   transition: width 0.3s ease;
 }
 
-.sidebar.full {
+/* .sidebar.full {
   width: 50%;
 }
 
 .sidebar.reduced {
   width: 30%;
-}
+} */
 
 .chatting {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: white !important;
+  background-color: #0f1924 !important;
 
   padding: 10px;
   transition: width 0.3s ease;
@@ -179,4 +171,21 @@
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: #f8f9fa;
+}
+
+/* Add to chat.css */
+.SplitPane .Resizer {
+  background: #05549e;
+  opacity: 0.5;
+  z-index: 1;
+  box-sizing: border-box;
+  background-clip: padding-box;
+}
+.SplitPane .Resizer:hover {
+  transition: all 2s ease;
+}
+.SplitPane .Resizer.vertical {
+  width: 8px;
+  margin: 0 -4px;
+  cursor: col-resize;
 }

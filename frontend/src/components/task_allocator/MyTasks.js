@@ -31,11 +31,20 @@ const MyTasks = () => {
   };
 
   return (
-    <Box p={5}>
-      <Text fontSize="2xl" mb={4}>
+    <Box
+      p={5}
+      bg="#0f1924"
+      minHeight="100vh"
+      width="100%"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Text fontSize="2xl" textColor="white" mb={4}>
         My Tasks
       </Text>
-      <VStack spacing={4}>
+      <VStack spacing={4} width="100%" align="center">
         {tasks.map((task) => (
           <TaskCard
             key={task._id}
