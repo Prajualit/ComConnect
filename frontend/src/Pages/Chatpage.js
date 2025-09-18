@@ -68,8 +68,9 @@ const Chatpage = () => {
       {mode === "large" && (
         <SplitPane
           split="vertical"
-          minSize={200}
-          defaultSize={550}
+          minSize={300}
+          maxSize={1200}
+          defaultSize={500}
           style={{ height: "100vh" }}
         >
           <div

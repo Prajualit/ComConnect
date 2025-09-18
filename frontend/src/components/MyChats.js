@@ -204,7 +204,6 @@ const MyChats = ({ fetchAgain }) => {
           borderRadius="lg"
           overflowY="auto"
           background="transparent"
-          
           sx={{
             flexDirection: "column",
             color: "#04539D",
@@ -245,10 +244,11 @@ const MyChats = ({ fetchAgain }) => {
                   py={2}
                   borderRadius="lg"
                   key={chat._id}
+                  h="60px"
                 >
                   <Text
                     fontFamily="subhead"
-                    fontSize={{ base: "15px", md: "17px", lg: "17px" }}
+                    fontSize={{ base: "15px", md: "17px", lg: "18px" }}
                   >
                     {!chat.isGroupChat
                       ? getSender(loggedUser, chat.users)
@@ -256,10 +256,11 @@ const MyChats = ({ fetchAgain }) => {
                   </Text>
                   {chat.latestMessage && (
                     <Text
-                      fontSize={{ base: "12px", md: "15px", lg: "17px" }}
+                      fontSize={{ base: "12px", md: "14px", lg: "15px" }}
                       fontFamily="subhead"
+                      fontWeight={"light"}
                     >
-                      <b>{chat.latestMessage.sender.name} : </b>
+                      {chat.latestMessage.sender.name} :&nbsp;
                       {chat.latestMessage.content.length > 50
                         ? chat.latestMessage.content.substring(0, 51) + "..."
                         : chat.latestMessage.content}
