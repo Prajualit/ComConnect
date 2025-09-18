@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Stack, Text, Button,Flex, Grid } from "@chakra-ui/react";
+import { Box, Stack, Text, Button, Flex, Grid } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useToast } from "@chakra-ui/toast";
 import { ChatState } from "../Context/ChatProvider";
@@ -65,183 +65,213 @@ const MyChats = ({ fetchAgain }) => {
         border: "none",
       }}
     >
-      <Box w="100%" >
-        <Flex
-          justifyContent="flex-start"
-          alignItems="center"
-          w="100%"
-          
-        >
+      <Box w="100%">
+        <Flex justifyContent="flex-start" alignItems="center" w="100%">
           <Text
             fontFamily="head"
             fontSize="3xl"
             textAlign="left"
             color="#fff"
-            pl={{ base: "5vw", md: "5vw" }}
+            ml={8}
           >
             COMCONNECT
           </Text>
         </Flex>
       </Box>
 
-    
       <Box
         py={3}
-        
         fontFamily="subhead"
         display="flex"
-        flexDirection="column"
+        overflowX="auto"
+        overflowY={"hidden"}
         w="100%"
-        justifyContent="left"
-        alignItems={"left"}
-        gap={4}
+        justifyContent="flex-start"
+        alignItems={"center"}
+        gap={1}
+        px={2}
+        ml={10}
+        sx={{
+          "&::-webkit-scrollbar": {
+            height: "4px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: "rgba(255, 255, 255, 0.3)",
+            borderRadius: "2px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            background: "rgba(255, 255, 255, 0.5)",
+          },
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(255, 255, 255, 0.3) transparent",
+          scrollBehavior: "smooth",
+        }}
       >
-        <Grid templateColumns="1fr 1fr" gap={5} w="100%" mb={2}>
+        <Button
+          px={3}
+          py={1}
+          minHeight="auto"
+          height="auto"
+          borderRadius={"20px"}
+          flexShrink={0}
+          fontSize={{ base: "11px", md: "13px", lg: "14px" }}
+          sx={{
+            backgroundColor: "#21364a",
+            color: "#fff",
+            _hover: { backgroundColor: "#192a39ff" },
+            _focus: { backgroundColor: "#192a39ff" },
+          }}
+        >
+          My Chats
+        </Button>
+        <GroupChatModal>
           <Button
-            width="100%"
-            fontSize={{ base: "15px", md: "17px", lg: "17px" }}
+            px={3}
+            py={1}
+            minHeight="auto"
+            height="auto"
+            borderRadius={"20px"}
+            flexShrink={0}
+            fontSize={{ base: "11px", md: "13px", lg: "15px" }}
             sx={{
-              backgroundColor: "transparent",
+              backgroundColor: "#21364a",
               color: "#fff",
-              _hover: { backgroundColor: "#21364a" },
+              _hover: { backgroundColor: "#192a39ff" },
+              _focus: { backgroundColor: "#192a39ff" },
             }}
           >
-            <IoChatbubblesSharp style={{ marginRight: "8px", color: "#fff" }} />
-            My Chats
+            New Group Chat
           </Button>
-          <GroupChatModal>
-            <Button
-              width="100%"
-              fontSize={{ base: "15px", md: "17px", lg: "17px" }}
-              sx={{
-                backgroundColor: "transparent",
-                color: "#fff",
-                _hover: { backgroundColor: "#21364a" },
-              }}
-            >
-              <FaPlus style={{ marginRight: "8px", color: "#fff" }} /> New Group Chat
-            </Button>
-          </GroupChatModal>
-        </Grid>
-
-        <Grid templateColumns="1fr 1fr" gap={5} w="100%">
-          <Button
-            width="100%"
-            fontSize={{ base: "15px", md: "17px", lg: "17px" }}
-            sx={{
-              backgroundColor: "transparent",
-              color: "#fff",
-              _hover: { backgroundColor: "#21364a" },
-            }}
-            onClick={() => navigate(`/tasks/${workspaceId}`)}
-          >
-            <CiBoxList style={{ marginRight: "8px", color: "#fff" }} />
-            Go to Tasks
-          </Button>
-          <Button
-            width="100%"
-            fontSize={{ base: "15px", md: "17px", lg: "17px" }}
-            sx={{
-              backgroundColor: "transparent",
-              color: "#fff",
-              _hover: { backgroundColor: "#21364a" },
-            }}
-            onClick={() => navigate(`/geo-location`)}
-          >
-            <FaLocationDot style={{ marginRight: "8px", color: "#fff" }} />
-            Map
-          </Button>
-        </Grid>
+        </GroupChatModal>
+        <Button
+          px={3}
+          py={1}
+          minHeight="auto"
+          height="auto"
+          borderRadius={"20px"}
+          flexShrink={0}
+          fontSize={{ base: "11px", md: "13px", lg: "15px" }}
+          sx={{
+            backgroundColor: "#21364a",
+            color: "#fff",
+            _hover: { backgroundColor: "#192a39ff" },
+            _focus: { backgroundColor: "#192a39ff" },
+          }}
+          onClick={() => navigate(`/tasks/${workspaceId}`)}
+        >
+          Go to Tasks
+        </Button>
+        <Button
+          px={3}
+          py={1}
+          minHeight="auto"
+          height="auto"
+          borderRadius={"20px"}
+          flexShrink={0}
+          fontSize={{ base: "11px", md: "13px", lg: "15px" }}
+          sx={{
+            backgroundColor: "#21364a",
+            color: "#fff",
+            _hover: { backgroundColor: "#192a39ff" },
+            _focus: { backgroundColor: "#192a39ff" },
+          }}
+          onClick={() => navigate(`/geo-location`)}
+        >
+          Map
+        </Button>
       </Box>
-      <Box
-      d="flex"
-      flexDir="column"
-      w="100%"
-      h="100%"
-      overflowY="auto"
-      sx={{
-        paddingTop: "30px",
-        paddingRight: "10px",
-        paddingLeft: "10px",
-        paddingBottom: "20px",
-        boxSizing: "border-box",
-      }}
-    >
-        
       <Box
         d="flex"
         flexDir="column"
         w="100%"
         h="100%"
-        borderRadius="lg"
         overflowY="auto"
-        background="transparent"
         sx={{
-          flexDirection: "column",
-          color: "#04539D",
-          width: "100%",
-          borderRadius: "12px",
-          padding: "15px",
-          flexGrow: 1,
-          overflowX: "hidden",
-          // Custom scrollbar styles
-          "&::-webkit-scrollbar": {
-            width: "15px",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "#D9D9D9",
-            borderRadius: "8px",
-            border: "1px solid #6d6a6a",
-            margin: "2px",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "#3C87CD",
-            borderRadius: "8px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            background: "#1f449c",
-          },
+          paddingRight: "10px",
+          paddingLeft: "10px",
+          paddingBottom: "20px",
+          boxSizing: "border-box",
         }}
       >
-        {Array.isArray(chats) ? (
-          <Stack >
-            {sortedChats.map((chat) => (
-              <Box
-                onClick={() => setSelectedChat(chat)}
-
-                cursor="pointer"
-                bg={selectedChat === chat ? "#21364a" : "#transparent"}
-                color={selectedChat === chat ? "#fff" : "#fff"}
-              
-
-                px={3}
-                py={2}
-                borderRadius="lg"
-                key={chat._id}
-              >
-                <Text
-                  fontFamily="subhead"
-                  fontSize={{ base: "15px", md: "17px", lg: "17px" }}
+        <Box
+          d="flex"
+          flexDir="column"
+          w="100%"
+          h="100%"
+          borderRadius="lg"
+          overflowY="auto"
+          background="transparent"
+          
+          sx={{
+            flexDirection: "column",
+            color: "#04539D",
+            width: "100%",
+            borderRadius: "12px",
+            padding: "15px",
+            flexGrow: 1,
+            overflowX: "hidden",
+            "&::-webkit-scrollbar": {
+              width: "15px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "#D9D9D9",
+              borderRadius: "8px",
+              border: "1px solid #6d6a6a",
+              margin: "2px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#3C87CD",
+              borderRadius: "8px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              background: "#1f449c",
+            },
+          }}
+        >
+          {Array.isArray(chats) ? (
+            <Stack>
+              {sortedChats.map((chat) => (
+                <Box
+                  onClick={() => setSelectedChat(chat)}
+                  cursor="pointer"
+                  bg={selectedChat === chat ? "#21364a" : "#transparent"}
+                  color={selectedChat === chat ? "#fff" : "#fff"}
+                  _hover={selectedChat !== chat && { background: "#21364a43" }}
+                  transition={"background 0.3s"}
+                  px={3}
+                  py={2}
+                  borderRadius="lg"
+                  key={chat._id}
                 >
-                  {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
-                {chat.latestMessage && (
-                  <Text fontSize={{ base: "12px", md: "15px", lg: "17px" }} fontFamily="subhead">
-                    <b>{chat.latestMessage.sender.name} : </b>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 51) + "..."
-                      : chat.latestMessage.content}
+                  <Text
+                    fontFamily="subhead"
+                    fontSize={{ base: "15px", md: "17px", lg: "17px" }}
+                  >
+                    {!chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
                   </Text>
-                )}
-              </Box>
-            ))}
-          </Stack>
-        ) : (
-          <ChatLoading />
-        )}
-      </Box>
+                  {chat.latestMessage && (
+                    <Text
+                      fontSize={{ base: "12px", md: "15px", lg: "17px" }}
+                      fontFamily="subhead"
+                    >
+                      <b>{chat.latestMessage.sender.name} : </b>
+                      {chat.latestMessage.content.length > 50
+                        ? chat.latestMessage.content.substring(0, 51) + "..."
+                        : chat.latestMessage.content}
+                    </Text>
+                  )}
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            <ChatLoading />
+          )}
+        </Box>
       </Box>
     </Box>
   );

@@ -15,6 +15,7 @@ import {
   Box,
   IconButton,
   Spinner,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
@@ -46,10 +47,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(
-        `/api/user?search=${search}`,
-        config
-      );
+      const { data } = await axios.get(`/api/user?search=${search}`, config);
       console.log(data);
       setLoading(false);
       setSearchResult(data);
@@ -208,7 +206,15 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
 
   return (
     <>
-      <IconButton d={{ base: "flex" }} icon={<ViewIcon />} onClick={onOpen} />
+      <Text
+        w={"100%"}
+        onClick={onOpen}
+        cursor={"pointer"}
+        px={3}
+        lineHeight={"none"}
+      >
+        {selectedChat.chatName.toUpperCase()}
+      </Text>
 
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
