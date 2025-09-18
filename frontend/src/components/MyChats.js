@@ -111,15 +111,16 @@ const MyChats = ({ fetchAgain }) => {
         }}
       >
         <Button
-          px={3}
-          py={1}
+          px={4}
+          py={2}
           minHeight="auto"
           height="auto"
+          fontWeight={"normal"}
           borderRadius={"20px"}
           flexShrink={0}
           fontSize={{ base: "11px", md: "13px", lg: "14px" }}
           sx={{
-            backgroundColor: "#21364a",
+            backgroundColor: "#21364a54",
             color: "#fff",
             _hover: { backgroundColor: "#192a39ff" },
             _focus: { backgroundColor: "#192a39ff" },
@@ -129,15 +130,16 @@ const MyChats = ({ fetchAgain }) => {
         </Button>
         <GroupChatModal>
           <Button
-            px={3}
-            py={1}
+            px={4}
+            py={2}
             minHeight="auto"
             height="auto"
+            fontWeight={"normal"}
             borderRadius={"20px"}
             flexShrink={0}
-            fontSize={{ base: "11px", md: "13px", lg: "15px" }}
+            fontSize={{ base: "11px", md: "13px", lg: "14px" }}
             sx={{
-              backgroundColor: "#21364a",
+              backgroundColor: "#21364a54",
               color: "#fff",
               _hover: { backgroundColor: "#192a39ff" },
               _focus: { backgroundColor: "#192a39ff" },
@@ -147,15 +149,16 @@ const MyChats = ({ fetchAgain }) => {
           </Button>
         </GroupChatModal>
         <Button
-          px={3}
-          py={1}
+          px={4}
+          py={2}
           minHeight="auto"
           height="auto"
+          fontWeight={"normal"}
           borderRadius={"20px"}
           flexShrink={0}
-          fontSize={{ base: "11px", md: "13px", lg: "15px" }}
+          fontSize={{ base: "11px", md: "13px", lg: "14px" }}
           sx={{
-            backgroundColor: "#21364a",
+            backgroundColor: "#21364a54",
             color: "#fff",
             _hover: { backgroundColor: "#192a39ff" },
             _focus: { backgroundColor: "#192a39ff" },
@@ -165,15 +168,16 @@ const MyChats = ({ fetchAgain }) => {
           Go to Tasks
         </Button>
         <Button
-          px={3}
-          py={1}
+          px={4}
+          py={2}
           minHeight="auto"
           height="auto"
+          fontWeight={"normal"}
           borderRadius={"20px"}
           flexShrink={0}
-          fontSize={{ base: "11px", md: "13px", lg: "15px" }}
+          fontSize={{ base: "11px", md: "13px", lg: "14px" }}
           sx={{
-            backgroundColor: "#21364a",
+            backgroundColor: "#21364a54",
             color: "#fff",
             _hover: { backgroundColor: "#192a39ff" },
             _focus: { backgroundColor: "#192a39ff" },
@@ -231,41 +235,46 @@ const MyChats = ({ fetchAgain }) => {
           }}
         >
           {Array.isArray(chats) ? (
-            <Stack>
+            <Stack spacing={0}>
               {sortedChats.map((chat) => (
-                <Box
-                  onClick={() => setSelectedChat(chat)}
-                  cursor="pointer"
-                  bg={selectedChat === chat ? "#21364a" : "#transparent"}
-                  color={selectedChat === chat ? "#fff" : "#fff"}
-                  _hover={selectedChat !== chat && { background: "#21364a43" }}
-                  transition={"background 0.3s"}
-                  px={3}
-                  py={2}
-                  borderRadius="lg"
-                  key={chat._id}
-                  h="60px"
-                >
-                  <Text
-                    fontFamily="subhead"
-                    fontSize={{ base: "15px", md: "17px", lg: "18px" }}
+                <Box key={chat._id}>
+                  <Box
+                    onClick={() => setSelectedChat(chat)}
+                    cursor="pointer"
+                    bg={selectedChat === chat ? "#162737ff" : "#transparent"}
+                    color={selectedChat === chat ? "#fff" : "#fff"}
+                    _hover={
+                      selectedChat !== chat && { background: "#192c3d41" }
+                    }
+                    transition={"background 0.3s"}
+                    px={3}
+                    py={2}
+                    borderRadius="lg"
+                    h="60px"
                   >
-                    {!chat.isGroupChat
-                      ? getSender(loggedUser, chat.users)
-                      : chat.chatName}
-                  </Text>
-                  {chat.latestMessage && (
                     <Text
-                      fontSize={{ base: "12px", md: "14px", lg: "15px" }}
                       fontFamily="subhead"
-                      fontWeight={"light"}
+                      fontSize={{ base: "15px", md: "17px", lg: "18px" }}
                     >
-                      {chat.latestMessage.sender.name} :&nbsp;
-                      {chat.latestMessage.content.length > 50
-                        ? chat.latestMessage.content.substring(0, 51) + "..."
-                        : chat.latestMessage.content}
+                      {!chat.isGroupChat
+                        ? getSender(loggedUser, chat.users)
+                        : chat.chatName}
                     </Text>
-                  )}
+                    {chat.latestMessage && (
+                      <Text
+                        fontSize={{ base: "12px", md: "14px", lg: "15px" }}
+                        fontFamily="subhead"
+                        fontWeight={"light"}
+                      >
+                        {chat.latestMessage.sender.name} :&nbsp;
+                        {chat.latestMessage.content.length > 50
+                          ? chat.latestMessage.content.substring(0, 51) + "..."
+                          : chat.latestMessage.content}
+                      </Text>
+                    )}
+                  </Box>
+                  {/* Small divider under each chat */}
+                  <Box height="1px" bg="#21364a" mx={3} my={1} opacity={0.5} />
                 </Box>
               ))}
             </Stack>
