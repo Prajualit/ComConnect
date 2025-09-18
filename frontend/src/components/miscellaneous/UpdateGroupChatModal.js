@@ -217,19 +217,21 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
       </Text>
 
       <Modal onClose={onClose} isOpen={isOpen} isCentered>
-        <ModalOverlay />
-        <ModalContent>
+        <ModalOverlay bg="blackAlpha.600" />
+        <ModalContent bg="#0F1924" border="1px solid #21364A" color="white">
           <ModalHeader
-            fontSize="35px"
+            fontSize="20px"
             fontFamily="Work sans"
             d="flex"
             justifyContent="center"
+            color="white"
           >
-            {selectedChat.chatName}
+            Group Details
           </ModalHeader>
 
-          <ModalCloseButton />
+          <ModalCloseButton color="white" _hover={{ bg: "#21364A" }} />
           <ModalBody d="flex" flexDir="column" alignItems="center">
+            <Text lineHeight={"none"} mb={4} fontSize="24px">{selectedChat.chatName}</Text>
             <Box w="100%" d="flex" flexWrap="wrap" pb={3}>
               {selectedChat.users.map((u) => (
                 <UserBadgeItem
@@ -240,16 +242,30 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
                 />
               ))}
             </Box>
-            <FormControl d="flex">
+            <FormControl display="flex">
               <Input
                 placeholder="Chat Name"
                 mb={3}
                 value={groupChatName}
                 onChange={(e) => setGroupChatName(e.target.value)}
+                border="1px solid #3C87CD"
+                color="white"
+                _placeholder={{ color: "gray.400" }}
+                bg="#0F1924"
+                borderColor="#2982db20"
+                _hover={{ borderColor: "#2982db40" }}
+                _focus={{
+                  borderColor: "#21364A",
+                  boxShadow: "0 0 0 1px #21364A",
+                  bg: "#131f2bff",
+                }}
               />
               <Button
                 variant="solid"
-                colorScheme="teal"
+                bg="#21364A"
+                color="white"
+                _hover={{ bg: "#1a2a39ff" }}
+                _active={{ bg: "#1a2a39ff" }}
                 ml={1}
                 isLoading={renameloading}
                 onClick={handleRename}
@@ -262,23 +278,63 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
                 placeholder="Add User to group"
                 mb={1}
                 onChange={(e) => handleSearch(e.target.value)}
+                border="1px solid #3C87CD"
+                bg="#0F1924"
+                borderColor="#2982db20"
+                color="white"
+                _placeholder={{ color: "gray.400" }}
+                _hover={{ borderColor: "#2982db40" }}
+                _focus={{
+                  borderColor: "#21364A",
+                  boxShadow: "0 0 0 1px #21364A",
+                  bg: "#131f2bff",
+                }}
               />
             </FormControl>
 
             {loading ? (
-              <Spinner size="lg" />
+              <Spinner size="lg" color="#3C87CD" />
             ) : (
-              searchResult?.map((user) => (
-                <UserListItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => handleAddUser(user)}
-                />
-              ))
+              <Box
+                maxH="200px"
+                overflowY="auto"
+                w="100%"
+                sx={{
+                  // Custom scrollbar styling
+                  "&::-webkit-scrollbar": {
+                    width: "2px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#21364A",
+                    borderRadius: "4px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#3C87CD",
+                    borderRadius: "4px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    background: "#1f449c",
+                  },
+                }}
+              >
+                {searchResult?.map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => handleAddUser(user)}
+                  />
+                ))}
+              </Box>
             )}
           </ModalBody>
-          <ModalFooter>
-            <Button onClick={() => handleRemove(user)} colorScheme="red">
+          <ModalFooter bg="#0F1924">
+            <Button
+              onClick={() => handleRemove(user)}
+              bg="#dc3545"
+              color="white"
+              _hover={{ bg: "#c82333" }}
+              _active={{ bg: "#bd2130" }}
+            >
               Leave Group
             </Button>
           </ModalFooter>
