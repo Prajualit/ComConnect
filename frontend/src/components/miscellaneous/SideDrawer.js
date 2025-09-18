@@ -79,15 +79,12 @@ function SideDrawer() {
         },
       };
 
-      const { data } = await axios.get(
-        `/api/user?search=${search}`,
-        config
-      );
+      const { data } = await axios.get(`/api/user?search=${search}`, config);
       console.log("search", data);
 
       setLoading(false);
-      setSearchResult( data);
-    } catch ( error) {
+      setSearchResult(data);
+    } catch (error) {
       toast({
         title: "Error Occured!",
         description: "Failed to Load the Search Results",
@@ -95,7 +92,7 @@ function SideDrawer() {
         duration: 5000,
         isClosable: true,
         position: "bottom-left",
-      }); 
+      });
     }
   };
 
@@ -136,70 +133,28 @@ function SideDrawer() {
     }
   };
 
- 
-
   return (
-    <Box bg="transparent">
+    <Box
+      zIndex={1000}
+      position="absolute"
+      bg="#0F1924"
+      borderBottom="1px solid #E5E8EB"
+      w={"100%"}
+      p={"5px 10px 5px 10px"}
+    >
       <Box
-        d="flex"
+        display="flex"
         justifyContent="space-between"
         alignItems="center"
         bg="transparent"
         w="100%"
-        p="5px 10px 5px 10px"
+        p="0px 10px 0px 10px"
         border="none"
         textColor="white"
       >
-        <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
-          <Button variant="ghost" onClick={onOpen}>
-            <i className="fas fa-search"></i>
-            <Text d={{ base: "none", md: "flex" }} px={4}>
-              Search User
-            </Text>
-          </Button>
-        </Tooltip>
-
-        <Text fontSize="3xl" fontFamily="Work sans" textAlign="center" flex="1">
+        <Text fontSize="2xl" fontFamily="Work sans">
           COMCONNECT
         </Text>
-
-        <div>
-          
-
-       
-
-          <Menu>
-            <MenuButton p={1}>
-              <Box position="relative" display="inline-block">
-                <BellIcon fontSize="2xl" m={1} />
-                {notification.length > 0 && (
-                  <Circle
-                    size="20px"
-                    bg="red.500"
-                    color="white"
-                    position="absolute"
-                    top="-8px"
-                    right="-8px"
-                    fontSize="12px"
-                  >
-                    {notification.length}
-                  </Circle>
-                )}
-              </Box>
-            </MenuButton>
-            <MenuList>
-              {notification.length === 0 ? (
-                <MenuItem>No new notifications</MenuItem>
-              ) : (
-                notification.map((notif, idx) => (
-                  <MenuItem key={idx}>
-                    {notif.message || "New notification"}
-                  </MenuItem>
-                ))
-              )}
-            </MenuList>
-          </Menu> 
-        </div>
       </Box>
 
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
