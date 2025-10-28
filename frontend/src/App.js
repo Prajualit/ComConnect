@@ -4,6 +4,7 @@ import Homepage from "./Pages/Homepage";
 import Chatpage from "./Pages/Chatpage";
 import { ChakraProvider } from "@chakra-ui/react";
 import ChatProvider from "./Context/ChatProvider";
+import { SocketProvider } from "./Context/SocketContext";
 import WorkspaceSelection from "./components/workspace/WorkspaceSelection";
 import WorkspaceProvider from "./Context/WorkspaceProvider";
 import TaskAllocatorPage from "./components/task_allocator/TaskAllocatorPage";
@@ -32,20 +33,22 @@ const App = () => {
     <Router>
       <ChakraProvider theme={theme}>
         <ChatProvider>
-          <WorkspaceProvider>
-            <div className="container">
-              <Routes>
-                <Route path="/" element={<Homepage />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/geo-location" element={<Geo />} />
-                <Route path="/tasks/:workspaceId" element={<TaskAllocatorPage />} /> {/* Updated route */}
-                <Route path="/my-tasks" element={<MyTasks />} />
-                <Route path="/chats" element={<Chatpage />} />
-                <Route path="/workspace" element={<WorkspaceSelection />} />
-                <Route path="/workspace/:workspaceId/chats" element={<Chatpage />} />
-              </Routes>
-            </div>
-          </WorkspaceProvider>
+          <SocketProvider>
+            <WorkspaceProvider>
+              <div className="container">
+                <Routes>
+                  <Route path="/" element={<Homepage />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/geo-location" element={<Geo />} />
+                  <Route path="/tasks/:workspaceId" element={<TaskAllocatorPage />} /> {/* Updated route */}
+                  <Route path="/my-tasks" element={<MyTasks />} />
+                  <Route path="/chats" element={<Chatpage />} />
+                  <Route path="/workspace" element={<WorkspaceSelection />} />
+                  <Route path="/workspace/:workspaceId/chats" element={<Chatpage />} />
+                </Routes>
+              </div>
+            </WorkspaceProvider>
+          </SocketProvider>
         </ChatProvider>
       </ChakraProvider>
     </Router>

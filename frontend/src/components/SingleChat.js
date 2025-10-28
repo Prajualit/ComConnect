@@ -15,21 +15,19 @@ import {
   MenuDivider,
 } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import ProfileModal from "./miscellaneous/ProfileModal";
 import ScrollableChat from "./ScrollableChat";
 import "./styles.css";
-import io from "socket.io-client";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import TaskDialog from "./task_allocator/TaskDialog";
 import { useDisclosure } from "@chakra-ui/react";
 import { API_URL } from "../config/api.config";
 import UserListItem from "./userAvatar/UserListItem";
-const ENDPOINT = "";
-var socket, selectedChatCompare;
+import socket from "../Context/SocketContext";
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
@@ -38,6 +36,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
+  
+  // Use ref to track the currently selected chat for socket listeners
+  const selectedChatCompareRef = useRef();
 
   // Search functionality states
   const [search, setSearch] = useState("");
@@ -82,6 +83,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setMessages(data);
       setLoading(false);
 
+      console.log('Joining chat room:', selectedChat._id);
+      console.log('Socket connected:', socket.connected);
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
@@ -186,7 +189,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
+    // Check if it's an Enter key press or a direct call (button click)
+    const shouldSend = !event || event.key === "Enter";
+    
+    if (shouldSend && newMessage) {
+      console.log('Sending message:', newMessage);
+      console.log('Socket connected:', socket.connected);
+      
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -203,10 +212,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           },
           config
         );
+        
+        console.log('💾 Message saved to DB:', data);
+        console.log('📤 Emitting "new message" event to socket');
+        console.log('👥 Chat users:', data.chat?.users);
         socket.emit("new message", data);
-        setMessages([...messages, data]);
+        
+        // Update messages in state immediately for sender
+        setMessages((prevMessages) => [...prevMessages, data]);
         setNewMessage("");
       } catch (error) {
+        console.error('Error sending message:', error);
         toast({
           title: "Error Occurred!",
           description: "Failed to send the Message",
@@ -220,42 +236,75 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(ENDPOINT);
+    // Connect socket if not already connected
+    if (!socket.connected) {
+      console.log('Connecting socket...');
+      socket.connect();
+    }
+    
     socket.emit("setup", user);
-    socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    
+    const handleConnected = () => {
+      console.log('Socket connected successfully');
+      setSocketConnected(true);
+    };
+    
+    const handleTyping = () => setIsTyping(true);
+    const handleStopTyping = () => setIsTyping(false);
+    
+    socket.on("connected", handleConnected);
+    socket.on("typing", handleTyping);
+    socket.on("stop typing", handleStopTyping);
 
+    // Cleanup on unmount
+    return () => {
+      socket.off("connected", handleConnected);
+      socket.off("typing", handleTyping);
+      socket.off("stop typing", handleStopTyping);
+    };
     // eslint-disable-next-line
   }, []);
 
   useEffect(() => {
     fetchMessages();
-
-    selectedChatCompare = selectedChat;
+    
+    // Update the ref when selectedChat changes
+    selectedChatCompareRef.current = selectedChat;
     // eslint-disable-next-line
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
+    const handleMessageReceived = (newMessageRecieved) => {
+      console.log('📨 Message received from socket:', newMessageRecieved);
+      console.log('📋 Current selected chat:', selectedChatCompareRef.current);
+      
       if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== newMessageRecieved.chat._id
+        !selectedChatCompareRef.current ||
+        selectedChatCompareRef.current._id !== newMessageRecieved.chat._id
       ) {
+        // Message is for a different chat - add to notifications
+        console.log('🔔 Message is for different chat - adding to notifications');
         if (!notification.includes(newMessageRecieved)) {
           setNotification([newMessageRecieved, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
+        // Message is for current chat - display it immediately
+        console.log('✅ Message is for current chat - displaying in real-time');
         setMessages((prevMessages) => [...prevMessages, newMessageRecieved]);
       }
-    });
-
-    // Clean up the event listener when the component unmounts
-    return () => {
-      socket.off("message recieved");
     };
-  }, [selectedChat, notification, fetchAgain]);
+
+    // Register the socket listener
+    socket.on("message recieved", handleMessageReceived);
+    console.log('🎧 Socket listener registered for "message recieved"');
+
+    // Clean up the event listener when dependencies change or component unmounts
+    return () => {
+      socket.off("message recieved", handleMessageReceived);
+      console.log('🔇 Socket listener removed for "message recieved"');
+    };
+  }, [notification, fetchAgain]);
 
   // Close search dropdown when clicking outside
   useEffect(() => {

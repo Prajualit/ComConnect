@@ -1,15 +1,24 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { API_URL } = require('./config/api.config');
 
 module.exports = function(app) {
-  // Only use proxy in development and when not connecting to production
+  // Only proxy API requests, not Socket.IO
   if (!process.env.REACT_APP_USE_PROD_API) {
+    const target = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
+    console.log('Proxy Configuration:');
+    console.log('- Target:', target);
+    console.log('- Proxying: /api only (Socket.IO connects directly)');
+    
+    // Only proxy /api, let Socket.IO connect directly
     app.use(
-      ['/api', '/socket.io'],
+      '/api',
       createProxyMiddleware({
-        target: API_URL,
+        target: target,
         changeOrigin: true,
-        ws: true,
+        logLevel: 'warn',
+        onError: (err, req, res) => {
+          console.error('Proxy Error:', err.message);
+        }
       })
     );
   }
