@@ -56,9 +56,8 @@
   flex-grow: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 60px;
   max-height: calc(100vh - 150px);
-  background-color: white; 
+  background-color: white !important; 
 }
 
 .messages {

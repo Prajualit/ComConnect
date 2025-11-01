@@ -165,15 +165,28 @@ const startServer = async () => {
       socket.on("new message", (newMessageRecieved) => {
         try {
           var chat = newMessageRecieved.chat;
+          console.log('📨 New message received on backend:', {
+            messageId: newMessageRecieved._id,
+            chatId: chat._id,
+            sender: newMessageRecieved.sender._id,
+            usersCount: chat.users?.length
+          });
+          
           if (!chat.users) {
             console.log("❌ chat.users not defined");
             return;
           }
 
+          console.log('📤 Broadcasting message to users in chat...');
           chat.users.forEach((user) => {
-            if (user._id == newMessageRecieved.sender._id) return;
+            if (user._id == newMessageRecieved.sender._id) {
+              console.log(`⏭️  Skipping sender: ${user._id}`);
+              return;
+            }
+            console.log(`📨 Emitting to user room: ${user._id}`);
             socket.in(user._id).emit("message recieved", newMessageRecieved);
           });
+          console.log('✅ Message broadcast complete');
         } catch (error) {
           console.error('❌ New message error:', error);
         }

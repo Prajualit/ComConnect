@@ -46,7 +46,7 @@ const BackgroundComponent = ({ children, ...props }) => {
 
       <Spring
         top="55.4vh"
-        left="95vw"
+        left="90%"
         height="25.03vh"
         width="9.54vw"
         // filter="drop-shadow(0px 2.85px 10.67px rgba(0, 0, 0, 0.5))"

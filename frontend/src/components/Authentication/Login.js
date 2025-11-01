@@ -23,7 +23,7 @@ const Login = () => {
     setShow(!show);
   };
   const navigate = useNavigate();
-  const handelSignup = (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
     navigate("/signup");
   };

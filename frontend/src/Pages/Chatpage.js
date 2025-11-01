@@ -1,5 +1,13 @@
 import SplitPane from "react-split-pane";
-import { Box, useBreakpointValue, Drawer, DrawerOverlay, DrawerContent, DrawerBody, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  useBreakpointValue,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerBody,
+  IconButton,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import { FiMenu } from "react-icons/fi";
 import Chatbox from "../components/Chatbox";
@@ -37,16 +45,22 @@ const Chatpage = () => {
             onClick={() => setDrawerOpen(true)}
             colorScheme="blue"
           />
-          <Drawer isOpen={isDrawerOpen} placement="left" onClose={() => setDrawerOpen(false)}>
+          <Drawer
+            isOpen={isDrawerOpen}
+            placement="left"
+            onClose={() => setDrawerOpen(false)}
+          >
             <DrawerOverlay />
-            <DrawerContent bg="#0f1924" maxWidth={"60vw"} width="60vw" >
+            <DrawerContent bg="#0f1924" maxWidth={"60vw"} width="60vw">
               <DrawerBody>
                 {user && <MyChats fetchAgain={fetchAgain} />}
               </DrawerBody>
             </DrawerContent>
           </Drawer>
           <Box className="chatting" w="100%" h="100vh">
-            {user && <Chatbox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />}
+            {user && (
+              <Chatbox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
+            )}
           </Box>
         </>
       )}
@@ -54,14 +68,22 @@ const Chatpage = () => {
       {mode === "large" && (
         <SplitPane
           split="vertical"
-          minSize={200}
-          defaultSize={550}
+          minSize={300}
+          maxSize={1200}
+          defaultSize={500}
           style={{ height: "100vh" }}
         >
-          <div className="sidebar" style={{ background: "#0f1924", height: "100%", overflowX: "hidden" }}>
+          <div
+            className="sidebar"
+            style={{
+              background: "#0f1924",
+              height: "100%",
+              overflowX: "hidden",
+            }}
+          >
             {user && <MyChats fetchAgain={fetchAgain} />}
           </div>
-          <div className="chatting">
+          <div>
             {user && (
               <Chatbox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
             )}

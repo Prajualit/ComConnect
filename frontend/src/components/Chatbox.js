@@ -13,7 +13,6 @@ const Chatbox = ({ fetchAgain, setFetchAgain }) => {
       alignItems="center"
       flexDir="column"
       bg="transparent"
-      p={0}
       className="chatboxkiheight"
       border="none"
     >

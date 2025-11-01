@@ -13,6 +13,7 @@ import {
   Text,
   Image,
 } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/layout";
 
 const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -22,25 +23,34 @@ const ProfileModal = ({ user, children }) => {
       {children ? (
         <span onClick={onOpen}>{children}</span>
       ) : (
-        <IconButton  mx={"1.5"} d={{ base: "flex" }} icon={<ViewIcon />} onClick={onOpen} />
+        <IconButton
+          mx={"1.5"}
+          d={{ base: "flex" }}
+          icon={<ViewIcon />}
+          onClick={onOpen}
+        />
       )}
       <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
-        <ModalContent h="410px">
+        <ModalContent
+          textColor={"white"}
+          border={"1px solid #2982db20"}
+          bg={"#0F1924"}
+          h="auto"
+        >
           <ModalHeader
-            fontSize="40px"
+            fontSize="20px"
             fontFamily="Work sans"
             d="flex"
             justifyContent="center"
           >
-            {user.name}
+            Profile
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody
-            d="flex"
-            flexDir="column"
+            display="flex"
             alignItems="center"
-            justifyContent="space-between"
+            justifyContent="space-evenly"
           >
             <Image
               borderRadius="full"
@@ -48,16 +58,23 @@ const ProfileModal = ({ user, children }) => {
               src={user.pic}
               alt={user.name}
             />
-            <Text
-              fontSize={{ base: "28px", md: "30px" }}
-              fontFamily="Work sans"
-            >
-              Email: {user.email}
-            </Text>
+            <Box>
+              <Text
+                fontSize={{ base: "24px", md: "32px" }}
+                fontFamily="Work sans"
+              >
+                {user.name}
+              </Text>
+              <Text
+                fontSize={{ base: "18px", md: "18px" }}
+                fontFamily="Work sans"
+                textColor={"gray.300"}
+              >
+                Email: {user.email}
+              </Text>
+            </Box>
           </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
+          <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
     </>
