@@ -1,18 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
-const Connection = require("./config/db");
-const cors = require("cors");
-const NotificationService = require("./services/notificationService");
-
-// Add process error handlers
-process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-});
-
-process.on('unhandledRejection', (error) => {
-  console.error('❌ Unhandled Rejection:', error);
-});
 
 // Load environment variables with multiple path attempts
 const envPaths = [
@@ -35,6 +23,19 @@ if (!envLoaded) {
   console.warn('⚠️ No .env file found in any of the searched paths');
   console.log('Searched paths:', envPaths);
 }
+
+const Connection = require("./config/db");
+const cors = require("cors");
+const NotificationService = require("./services/notificationService");
+
+// Add process error handlers
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+});
+
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Unhandled Rejection:', error);
+});
 
 // Verify environment variables are loaded
 console.log('Environment Variables Status:');

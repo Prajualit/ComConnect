@@ -14,7 +14,7 @@ console.log("debugging");
 
 // Redis Configuration
 const redisConfig = {
-  host: process.env.REDIS_HOST || 'ec2-3-6-113-80.ap-south-1.compute.amazonaws.com',
+  host: process.env.REDIS_HOST || '127.0.0.1',
   port: parseInt(process.env.REDIS_PORT) || 6379,
   maxRetriesPerRequest: 3,
   retryStrategy(times) {
@@ -65,7 +65,7 @@ async function testRedisConnection() {
 // Kafka Configuration
 const kafkaConfig = {
   clientId: process.env.KAFKA_CLIENT_ID || 'notification-service',
-  brokers: [process.env.KAFKA_BROKER || 'ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:9092'],
+  brokers: [process.env.KAFKA_BROKER || 'localhost:9092'],
   connectionTimeout: 30000,
   retry: {
     initialRetryTime: 100,
