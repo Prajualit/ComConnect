@@ -16,11 +16,13 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
                 maxZoom: 22,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
+                zIndex: 1,
             }).setView([0, 0], 18);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom:22
+                maxZoom:22,
+                zIndex: 1
             }).addTo(mapRef.current);
         }
 
@@ -75,13 +77,13 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
     }, [location, accuracy, otherUsers]);
 
     return (
-        <div>
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
             <link
                 rel="stylesheet"
                 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
                 crossOrigin=""
             />
-            <div id="map-container" style={{ height: '100vh', width: '100vw' }} />
+            <div id="map-container" style={{ height: '100%', width: '100%' }} />
         </div>
     );
 };
