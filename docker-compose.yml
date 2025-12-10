@@ -1,6 +1,44 @@
-version: '3.8'
-
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - app_network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    networks:
+      - app_network
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
   backend:
     build:
       context: .
@@ -11,18 +49,19 @@ services:
       - app_network
     environment:
       - NODE_ENV=development
-      - KAFKA_BROKER=ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:9092
+      - KAFKA_BROKER=kafka:9092
       - KAFKA_CLIENT_ID=notification-service
       - KAFKA_GROUP_ID=notification-group
-      - REDIS_HOST=ec2-3-6-113-80.ap-south-1.compute.amazonaws.com
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - MONGODB_URI=mongodb+srv://akshanshkaushal9:GRS7yWeIDcF8SEMQ@cluster0.t7rpzk9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
     volumes:
       - ./backend:/app/backend
       - /app/backend/node_modules
       - ./.env:/app/backend/.env
-    extra_hosts:
-      - "ec2-3-6-113-80.ap-south-1.compute.amazonaws.com:3.6.113.80"
+    depends_on:
+      - kafka
+      - redis
 
   frontend:
     build:
@@ -35,8 +74,8 @@ services:
     networks:
       - app_network
     environment:
-      - REACT_APP_API_URL=http://backend:5000
-      - REACT_APP_SOCKET_URL=http://backend:5000
+      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_SOCKET_URL=http://localhost:5000
 
 networks:
   app_network:
