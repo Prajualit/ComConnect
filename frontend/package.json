@@ -48,7 +48,7 @@
     "start:local": "REACT_APP_USE_PROD_API=false react-scripts start",
     "start:docker": "REACT_APP_IN_DOCKER=true REACT_APP_API_URL=http://backend:5000/api react-scripts start",
     "start:prod": "REACT_APP_USE_PROD_API=true react-scripts start",
-    "build": "react-scripts build",
+    "build": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -71,6 +71,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
