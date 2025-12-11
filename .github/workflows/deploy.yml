@@ -23,10 +23,11 @@ jobs:
             ${{ runner.OS }}-node-
       
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
+        working-directory: ./frontend
       
       - name: Build frontend
-        run: npm run build:frontend
+        run: npm run build
         working-directory: ./frontend
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
